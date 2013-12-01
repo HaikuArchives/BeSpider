@@ -1,0 +1,8 @@
+BeSpider
+cmake_install.cmake
+*/cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+*/CMakeFiles/
+Makefile
+*/MakeFile
