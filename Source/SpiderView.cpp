@@ -189,6 +189,7 @@ void SpiderView::_GenerateBoard()
 		fFreeCards[i] = 8;
 	
 	fStock = 4;
+	fStacked = 0;
 	fIsCardPicked = false;
 	fIsStackPicked = false;
 	
