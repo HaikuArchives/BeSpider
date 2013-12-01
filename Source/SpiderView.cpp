@@ -36,9 +36,11 @@ void SpiderView::Draw(BRect rect)
 				}
 			} else break;
 	
-	for (short i = 0; i != fStock; i++) {
+	for (short i = 0; i != fStacked; i++)
+		DrawBitmap(fSpades[12], BRect(i*15 + 10, 390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
+	
+	for (short i = 0; i != fStock; i++)
 		DrawBitmap(fBack, BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT, 900 - i*15, 390));
-	}
 	
 	if (fIsCardPicked)
 		DrawBitmap(fSpades[fPickedCard.fValue], BRect(fPickedCardPos.x, fPickedCardPos.y, fPickedCardPos.x + CARD_WIDTH, fPickedCardPos.y + CARD_HEIGHT));
@@ -237,8 +239,18 @@ void SpiderView::_CheckBoard()
 		if (needed == 13)
 			stacked = true;
 		
-		if (stacked);
-			//(new BAlert("AboutAlert", "Ułożyłeś stos!", "OK"))->Go();
+		if (stacked) {
+			fStacked++;
+			
+			short first = _FindFirstFree(i);
+			for (short j = 1; j != 15; j++) {
+				fBoard[i][first-j].fValue = -1;
+			}
+			
+			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
+			
+			Invalidate();
+		}
 	}
 }
 

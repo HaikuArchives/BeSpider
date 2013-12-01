@@ -50,6 +50,8 @@ private:
 	bool fIsCardPicked;
 	bool fIsStackPicked;
 	short fLastPickedCardPos;
+	
+	short fStacked;
 };
 
 #endif // _SPIDERVIEW_H_
