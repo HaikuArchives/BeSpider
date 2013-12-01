@@ -9,6 +9,7 @@
 #include <Bitmap.h>
 #include <Point.h>
 #include <Rect.h>
+#include <SimpleGameSound.h>
 #include <View.h>
 
 #define CARD_WIDTH 80
@@ -41,6 +42,9 @@ private:
 	
 	BBitmap* fSpades[13];
 	BBitmap* fBack;
+	
+	BSimpleGameSound* fShuffle;
+	BSimpleGameSound* fFanfare;
 	
 	card fBoard[10][25];
 	short fFreeCards[13];

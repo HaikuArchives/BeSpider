@@ -96,6 +96,8 @@ void SpiderView::MouseDown(BPoint point)
 		}
 		
 		fStock--;
+		
+		fShuffle->StartPlaying();
 		Invalidate();
 	}
 
@@ -218,6 +220,10 @@ void SpiderView::_LoadBitmaps()
 	}
 	
 	fBack = BTranslationUtils::GetBitmapFile("Artwork/back.png");
+	
+	fShuffle = new BSimpleGameSound("Artwork/shuffle.wav");
+	fFanfare = new BSimpleGameSound("Artwork/fanfare.wav");
+
 }
 
 
@@ -264,6 +270,8 @@ void SpiderView::_GenerateBoard()
 	for (short i = 0; i != 10; i++) {			
 		fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
 	}
+	
+	fShuffle->StartPlaying();
 }
 
 
@@ -297,10 +305,13 @@ void SpiderView::_CheckBoard()
 			fPoints =+ 100;
 			
 			Invalidate();
+			
+			fShuffle->StartPlaying();
 		}
 	}
 	
 	if (fStacked == 8) {
+		fFanfare->StartPlaying();
 		(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
 	}
 }
