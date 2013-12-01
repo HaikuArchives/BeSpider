@@ -30,6 +30,8 @@ public:
 	virtual void MouseMoved(BPoint point,
 		uint32 transit, const BMessage* message);
 	virtual void MouseUp(BPoint point);
+	
+	void NewGame();
 
 private:
 	void _LoadBitmaps();
@@ -52,6 +54,9 @@ private:
 	short fLastPickedCardPos;
 	
 	short fStacked;
+	
+	int fPoints;
+	int fMoves;
 };
 
 #endif // _SPIDERVIEW_H_

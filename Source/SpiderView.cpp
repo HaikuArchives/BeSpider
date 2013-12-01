@@ -51,6 +51,32 @@ void SpiderView::Draw(BRect rect)
 			DrawBitmap(fSpades[fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1] + i].fValue], BRect(fPickedCardPos.x, fPickedCardPos.y + i * 15, fPickedCardPos.x + CARD_WIDTH, fPickedCardPos.y + CARD_HEIGHT + i * 15));
 		}
 	}
+	
+	BString points = BString();
+	points << fPoints;
+	BString moves = BString();
+	moves << fMoves;
+
+	BFont bigFont = BFont();
+	bigFont.SetFace(B_BOLD_FACE);
+	bigFont.SetSize(18);
+	
+	BFont smallFont = BFont();
+	smallFont.SetSize(12);
+	
+	SetHighColor(255,255,255);
+	
+	SetFont(&bigFont);
+	DrawString(points, BPoint(455 - bigFont.StringWidth(points) / 2, 340));
+	
+	SetFont(&smallFont);
+	DrawString("points", BPoint(455 - bigFont.StringWidth("points") / 2, 355));
+	
+	SetFont(&bigFont);
+	DrawString(moves, BPoint(455 - bigFont.StringWidth(points) / 2, 375));
+	
+	SetFont(&smallFont);
+	DrawString("moves", BPoint(455 - bigFont.StringWidth("moves") / 2, 390));
 }
 
 
@@ -142,6 +168,9 @@ void SpiderView::MouseUp(BPoint point) {
 			|| _FindFirstFree(stack) == 0) {
 			fBoard[stack][_FindFirstFree(stack)] = fPickedCard;
 			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]-1].fRevealed = true;
+			
+			fPoints--;
+			fMoves++;
 		}
 		else
 			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]] = fPickedCard;
@@ -172,6 +201,13 @@ void SpiderView::MouseUp(BPoint point) {
 }
 
 
+void SpiderView::NewGame()
+{
+	_GenerateBoard();
+	Invalidate();
+}
+
+
 void SpiderView::_LoadBitmaps()
 {
 	for (short i = 0; i != 14; i++) {
@@ -194,6 +230,15 @@ void SpiderView::_GenerateBoard()
 	fStacked = 0;
 	fIsCardPicked = false;
 	fIsStackPicked = false;
+	
+	fPoints = 200;
+	fMoves = 0;
+	
+	for (short i = 0; i != 10; i++)
+		for (short j = 0; j != 25; j++) {
+			fBoard[i][j].fValue = -1;
+			fBoard[i][j].fRevealed = false;
+		}
 	
 	srand(time(NULL));
 
@@ -249,8 +294,14 @@ void SpiderView::_CheckBoard()
 			
 			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
 			
+			fPoints =+ 100;
+			
 			Invalidate();
 		}
+	}
+	
+	if (fStacked == 8) {
+		(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
 	}
 }
 

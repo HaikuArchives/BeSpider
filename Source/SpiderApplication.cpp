@@ -13,7 +13,7 @@ SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SpiderWindow(BRect(150, 150, 1060, 550), "BeSpider");
+	fWindow = new SpiderWindow(BRect(150, 150, 1060, 575), "BeSpider");
 
 	fWindow->Lock();
 	fWindow->Show();
