@@ -19,6 +19,8 @@ SpiderWindow::SpiderWindow(BRect frame, const char* title)
 {
 	fView = new SpiderView();
 	
+	SetPulseRate(50000);
+
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 		.Add(_CreateMenuBar())
 		.Add(fView);

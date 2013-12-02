@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 SpiderView::SpiderView()
-	: BView(BRect(0, 0, 910, 400), "SpiderView", B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW)
+	: BView(BRect(0, 0, 910, 400), "SpiderView", B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED)
 {
 	SetViewColor(0, 85, 0);
 	
@@ -33,7 +33,24 @@ void SpiderView::Draw(BRect rect)
 		for (short j = 0; j != 26; j++)
 			if (fBoard[i][j].fValue != -1) {
 				if (fBoard[i][j].fRevealed == true) {
-					DrawBitmap(fCards[fBoard[i][j].fColor][fBoard[i][j].fValue], BRect(10 + i * (CARD_WIDTH + 10), (j + 1) * 15, 10 + (i + 1) * CARD_WIDTH + i * 10, CARD_HEIGHT + (j + 1) * 15));
+					if (fBoard[i][j].fEffect == E_HIDDEN)
+						continue;
+					BRect rect = BRect(10 + i * (CARD_WIDTH + 10), (j + 1) * 15, 10 + (i + 1) * CARD_WIDTH + i * 10, CARD_HEIGHT + (j + 1) * 15);
+					DrawBitmap(fCards[fBoard[i][j].fColor][fBoard[i][j].fValue], rect);
+					switch (fBoard[i][j].fEffect) {
+					case E_ALPHA25:
+						SetHighColor(0, 85, 0, 63);
+						break;
+					case E_ALPHA50:
+						SetHighColor(0, 85, 0, 127);
+						break;
+					case E_ALPHA75:
+						SetHighColor(0, 85, 0, 190);
+						break;
+					default:
+						SetHighColor(0, 85, 0, 0);
+					}
+					FillRect(rect);
 				} else {
 					DrawBitmap(fBack, BRect(10 + i * (CARD_WIDTH + 10), (j + 1) * 15, 10 + (i + 1) * CARD_WIDTH + i * 10, CARD_HEIGHT + (j + 1) * 15));
 				}
@@ -83,8 +100,60 @@ void SpiderView::Draw(BRect rect)
 }
 
 
+void SpiderView::Pulse()
+{
+	if (fDealing > 9)
+		fDealing = -1;
+
+	if (fDealing != -1) {
+		switch (fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect) {
+		case E_ALPHA75:
+			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_ALPHA50;
+			break;
+		case E_ALPHA50:
+			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_ALPHA25;
+			fBoard[fDealing+1][_FindFirstFree(fDealing+1)-1].fEffect = E_ALPHA75;
+			break;
+		case E_ALPHA25:
+			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_NONE;
+			fDealing++;
+			break;
+		}
+
+		Invalidate();
+	} else if (fStacking != -1) {
+		switch (fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect) {
+		case E_ALPHA25:
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA50;
+			break;
+		case E_ALPHA50:
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA75;
+			break;
+		case E_ALPHA75:
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fValue = -1;
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA25;
+			fStackingCard++;
+			fprintf(stderr, "%d", fStackingCard);
+			break;
+		}
+
+		Invalidate();
+
+		if (fStackingCard == 14) {
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fRevealed = true;
+			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_NONE;
+
+			fStacking = -1;
+		}
+	}
+}
+
+
 void SpiderView::MouseDown(BPoint point)
 {
+	if (fDealing != -1)
+		return;
+
 	if (point.x > (900 - CARD_WIDTH - fStock * 15) && point.x < 900
 		&& point.y > 390 - CARD_HEIGHT && point.y < 390) {
 		if (fStock == 0) return;
@@ -97,11 +166,15 @@ void SpiderView::MouseDown(BPoint point)
 			}
 
 			fBoard[i][_FindFirstFree(i)].fColor = rcolor;
+			fBoard[i][_FindFirstFree(i)].fEffect = E_HIDDEN;
 			fBoard[i][_FindFirstFree(i)].fValue = random;
 			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
 			fFreeCards[rcolor][random]--;
 		}
 		
+		fBoard[0][_FindFirstFree(0)-1].fEffect = E_ALPHA75;
+		fDealing = 0;
+
 		fStock--;
 		
 		fShuffle->StartPlaying();
@@ -239,7 +312,6 @@ void SpiderView::ChangeDifficulity(int difficulity)
 	case 2:
 		fColors = 4;
 		fDecks = 2;
-		break;
 	}
 	
 	NewGame();
@@ -305,6 +377,9 @@ void SpiderView::_GenerateBoard()
 			fFreeCards[j][i] = fDecks;
 	
 	fStock = 4;
+	fDealing = -1;
+	fStacking = -1;
+	fStackingCard = -1;
 	fStacked = 0;
 	fIsCardPicked = false;
 	fIsStackPicked = false;
@@ -349,8 +424,12 @@ void SpiderView::_GenerateBoard()
 	
 	for (short i = 0; i != 10; i++) {			
 		fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
+		fBoard[i][_FindFirstFree(i)-1].fEffect = E_HIDDEN;
 	}
 	
+	fBoard[0][_FindFirstFree(0)-1].fEffect = E_ALPHA75;
+	fDealing = 0;
+
 	fShuffle->StartPlaying();
 }
 
@@ -377,13 +456,11 @@ void SpiderView::_CheckBoard()
 		if (stacked) {
 			short first = _FindFirstFree(i);
 			fStackedColor[fStacked] = fBoard[i][first].fColor;
+			fStacking = i;
+			fStackingCard = 1;
 			fStacked++;
 			
-			for (short j = 1; j != 15; j++) {
-				fBoard[i][first-j].fValue = -1;
-			}
-			
-			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
+			fBoard[i][first-1].fEffect = E_ALPHA25;
 			
 			fPoints += 100;
 			
@@ -392,7 +469,7 @@ void SpiderView::_CheckBoard()
 			fShuffle->StartPlaying();
 		}
 	}
-	
+
 	if (fStacked == 8) {
 		fFanfare->StartPlaying();
 		(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();

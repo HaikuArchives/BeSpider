@@ -16,10 +16,15 @@
 #define CARD_HEIGHT 116
 
 
+enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
+	E_HIDDEN, E_GREEN, E_RED };
+
+
 typedef struct card {
 	short fValue = -1;
 	short fColor = 0;
 	bool fRevealed = false;	
+	short fEffect = E_NONE;
 } card;
 
 
@@ -28,6 +33,7 @@ public:
 	SpiderView();
 	
 	virtual void Draw(BRect rect);
+	virtual void Pulse();
 	virtual void MouseDown(BPoint point);
 	virtual void MouseMoved(BPoint point,
 		uint32 transit, const BMessage* message);
@@ -50,6 +56,9 @@ private:
 	
 	card fBoard[10][25];
 	short fStock;
+	short fDealing;
+	short fStacking;
+	short fStackingCard;
 	short fFreeCards[4][13];
 
 	int fColors = 1;
