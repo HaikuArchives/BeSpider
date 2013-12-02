@@ -91,7 +91,7 @@ void SpiderView::MouseDown(BPoint point)
 		for (short i = 0; i != 10; i++) {
 			short random = rand() % 13;
 			short rcolor = rand() % fColors;
-			while (fAnFreeCards[rcolor][random] == 0) {
+			while (fFreeCards[rcolor][random] == 0) {
 				random = rand() % 13;
 				rcolor = rand() % fColors;
 			}
@@ -99,7 +99,7 @@ void SpiderView::MouseDown(BPoint point)
 			fBoard[i][_FindFirstFree(i)].fColor = rcolor;
 			fBoard[i][_FindFirstFree(i)].fValue = random;
 			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
-			fAnFreeCards[rcolor][random]--;
+			fFreeCards[rcolor][random]--;
 		}
 		
 		fStock--;
@@ -302,7 +302,7 @@ void SpiderView::_GenerateBoard()
 {
 	for (short i = 0; i != 13; i++)
 		for (short j = 0; j != 4; j++)
-			fAnFreeCards[j][i] = fDecks;
+			fFreeCards[j][i] = fDecks;
 	
 	fStock = 4;
 	fStacked = 0;
@@ -324,27 +324,27 @@ void SpiderView::_GenerateBoard()
 		for (short j = 0; j != 10; j++) {			
 			short random = rand() % 13;
 			short rcolor = rand() % fColors;
-			while (fAnFreeCards[rcolor][random] == 0) {
+			while (fFreeCards[rcolor][random] == 0) {
 				rcolor = rand() % fColors;
 				random = rand() % 13;
 			}
 			
 			fBoard[j][i].fColor = rcolor;
 			fBoard[j][i].fValue = random;
-			fAnFreeCards[rcolor][random]--;
+			fFreeCards[rcolor][random]--;
 		}
 	
 	for (short i = 0; i != 4; i++) {
 		short random = rand() % 13;
 		short rcolor = rand() % fColors;
-		while (fAnFreeCards[rcolor][random] == 0) {
+		while (fFreeCards[rcolor][random] == 0) {
 			rcolor = rand() % fColors;
 			random = rand() % 13;
 		}
 		
 		fBoard[i][6].fColor = rcolor;
 		fBoard[i][6].fValue = random;
-		fAnFreeCards[rcolor][random]--;
+		fFreeCards[rcolor][random]--;
 	}
 	
 	for (short i = 0; i != 10; i++) {			

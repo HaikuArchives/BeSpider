@@ -50,10 +50,8 @@ private:
 	
 	card fBoard[10][25];
 	short fStock;
+	short fFreeCards[4][13];
 
-	// Removing this line makes app not working...
-	short fFreeCards[13];
-	
 	int fColors = 1;
 	int fDecks = 8;
 	
@@ -69,8 +67,6 @@ private:
 	
 	int fPoints;
 	int fMoves;
-	
-	short fAnFreeCards[4][14];
 };
 
 #endif // _SPIDERVIEW_H_
