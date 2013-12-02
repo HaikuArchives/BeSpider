@@ -18,6 +18,7 @@
 
 typedef struct card {
 	short fValue = -1;
+	short fColor = 0;
 	bool fRevealed = false;	
 } card;
 
@@ -33,22 +34,28 @@ public:
 	virtual void MouseUp(BPoint point);
 	
 	void NewGame();
+	void ChangeDifficulity(int difficulity);
 
 private:
 	void _LoadBitmaps();
 	void _GenerateBoard();
 	void _CheckBoard();
-	inline short _FindFirstFree(short stock);
+	short _FindFirstFree(short stock);
 	
-	BBitmap* fSpades[13];
+	BBitmap* fCards[4][13];
 	BBitmap* fBack;
 	
 	BSimpleGameSound* fShuffle;
 	BSimpleGameSound* fFanfare;
 	
 	card fBoard[10][25];
-	short fFreeCards[13];
 	short fStock;
+
+	// Removing this line makes app not working...
+	short fFreeCards[13];
+	
+	int fColors = 1;
+	int fDecks = 8;
 	
 	short fPickedCardBoardPos[1];
 	BPoint fPickedCardPos;
@@ -61,6 +68,8 @@ private:
 	
 	int fPoints;
 	int fMoves;
+	
+	short fAnFreeCards[4][14];
 };
 
 #endif // _SPIDERVIEW_H_

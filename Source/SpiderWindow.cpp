@@ -6,6 +6,7 @@
 
 #include "SpiderView.h"
 
+#include <Alert.h>
 #include <Application.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
@@ -26,10 +27,18 @@ SpiderWindow::SpiderWindow(BRect frame, const char* title)
 
 void SpiderWindow::MessageReceived(BMessage* message)
 {
+	BAlert* question;
+	int32 response;
+
 	switch (message->what) {
 	case kNewGameMessage:
 		fView->NewGame();
 		break;
+	case kDifficulityMessage:
+		question = new BAlert("DiffAlert", "Choose difficulity level.", "Easy (1 color)", "Medium (2 colors)", "Hard (4 colors)", B_WIDTH_AS_USUAL, B_IDEA_ALERT);
+		response = question->Go();
+		fView->ChangeDifficulity(response);
+		
 	default:
 		BWindow::MessageReceived(message);
 	}
