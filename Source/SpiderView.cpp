@@ -381,7 +381,7 @@ void SpiderView::_CheckBoard()
 			
 			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
 			
-			fPoints =+ 100;
+			fPoints += 100;
 			
 			Invalidate();
 			
