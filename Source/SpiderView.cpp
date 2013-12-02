@@ -40,7 +40,7 @@ void SpiderView::Draw(BRect rect)
 			} else break;
 	
 	for (short i = 0; i != fStacked; i++)
-		DrawBitmap(fCards[0][12], BRect(i*15 + 10, 390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
+		DrawBitmap(fCards[fStackedColor[i]][12], BRect(i*15 + 10, 390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
 	
 	for (short i = 0; i != fStock; i++)
 		DrawBitmap(fBack, BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT, 900 - i*15, 390));
@@ -375,9 +375,10 @@ void SpiderView::_CheckBoard()
 			stacked = true;
 		
 		if (stacked) {
+			short first = _FindFirstFree(i);
+			fStackedColor[fStacked] = fBoard[i][first].fColor;
 			fStacked++;
 			
-			short first = _FindFirstFree(i);
 			for (short j = 1; j != 15; j++) {
 				fBoard[i][first-j].fValue = -1;
 			}

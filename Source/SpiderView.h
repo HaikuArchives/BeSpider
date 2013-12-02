@@ -65,6 +65,7 @@ private:
 	short fLastPickedCardPos;
 	
 	short fStacked;
+	short fStackedColor[8];
 	
 	int fPoints;
 	int fMoves;
