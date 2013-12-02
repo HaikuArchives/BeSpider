@@ -201,6 +201,9 @@ void SpiderView::MouseUp(BPoint point)
 				fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1] + i].fValue = -1;
 			}
 			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]-1].fRevealed = true;
+			
+			fPoints--;
+			fMoves++;
 		}
 		else
 			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]] = fPickedCard;
