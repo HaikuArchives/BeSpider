@@ -7,23 +7,26 @@
 
 #include "SpiderView.h"
 
+#include <Invoker.h>
 #include <Window.h>
 
 
 const int32 kNewGameMessage = 'NewG';
 const int32 kDifficulityMessage = 'Diff';
+const int32 kDiffChosenMessage = 'DiCh';
 
 
 class SpiderWindow : public BWindow {
 public:
 	SpiderWindow(BRect frame, const char* title);
-	
+
 	virtual void MessageReceived(BMessage* message);
 
 private:
 	BMenuBar* _CreateMenuBar();
-	
+
 	SpiderView* fView;
+	BInvoker* fDiffSet;
 };
 
 #endif	// _SPIDERWINDOW_H_

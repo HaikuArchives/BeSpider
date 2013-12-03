@@ -15,9 +15,11 @@
 
 SpiderWindow::SpiderWindow(BRect frame, const char* title)
 	:
-	BWindow(frame, title, B_DOCUMENT_WINDOW, B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE)
+	BWindow(frame, title, B_DOCUMENT_WINDOW,
+	B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE)
 {
 	fView = new SpiderView();
+	fDiffSet = new BInvoker(new BMessage(kDiffChosenMessage), this);
 	
 	SetPulseRate(50000);
 
@@ -37,10 +39,15 @@ void SpiderWindow::MessageReceived(BMessage* message)
 		fView->NewGame();
 		break;
 	case kDifficulityMessage:
-		question = new BAlert("DiffAlert", "Choose difficulity level.", "Easy (1 color)", "Medium (2 colors)", "Hard (4 colors)", B_WIDTH_AS_USUAL, B_IDEA_ALERT);
-		response = question->Go();
+		question = new BAlert("DiffAlert", "Choose difficulity level.",
+			"Easy (1 color)", "Medium (2 colors)", "Hard (4 colors)",
+			B_WIDTH_AS_USUAL, B_IDEA_ALERT);
+		question->Go(fDiffSet);
+		break;
+	case kDiffChosenMessage:
+		message->FindInt32("which", &response);
 		fView->ChangeDifficulity(response);
-		
+		break;
 	default:
 		BWindow::MessageReceived(message);
 	}
@@ -50,15 +57,16 @@ void SpiderWindow::MessageReceived(BMessage* message)
 BMenuBar* SpiderWindow::_CreateMenuBar()
 {
 	BMenuBar* menu = new BMenuBar("MenuBar");
-	
+
 	menu->AddItem(new BMenuItem("New game", new BMessage(kNewGameMessage)));
-	menu->AddItem(new BMenuItem("Change difficulity", new BMessage(kDifficulityMessage)));
-	
+	menu->AddItem(new BMenuItem("Change difficulity",
+		new BMessage(kDifficulityMessage)));
+
 	BMenuItem* about = new BMenuItem("About", new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
 	menu->AddItem(about);
 
 	menu->AddItem(new BMenuItem("Quit", new BMessage(B_QUIT_REQUESTED)));
-	
+
 	return menu;
 }

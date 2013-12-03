@@ -31,14 +31,14 @@ typedef struct card {
 class SpiderView : public BView {
 public:
 	SpiderView();
-	
+
 	virtual void Draw(BRect rect);
 	virtual void Pulse();
 	virtual void MouseDown(BPoint point);
 	virtual void MouseMoved(BPoint point,
 		uint32 transit, const BMessage* message);
 	virtual void MouseUp(BPoint point);
-	
+
 	void NewGame();
 	void ChangeDifficulity(int difficulity);
 
@@ -47,13 +47,13 @@ private:
 	void _GenerateBoard();
 	void _CheckBoard();
 	short _FindFirstFree(short stock);
-	
+
 	BBitmap* fCards[4][13];
 	BBitmap* fBack;
-	
+
 	BSimpleGameSound* fShuffle;
 	BSimpleGameSound* fFanfare;
-	
+
 	card fBoard[10][25];
 	short fStock;
 	short fDealing;
@@ -63,17 +63,17 @@ private:
 
 	int fColors = 1;
 	int fDecks = 8;
-	
+
 	short fPickedCardBoardPos[1];
 	BPoint fPickedCardPos;
 	card fPickedCard;
 	bool fIsCardPicked;
 	bool fIsStackPicked;
 	short fLastPickedCardPos;
-	
+
 	short fStacked;
 	short fStackedColor[8];
-	
+
 	int fPoints;
 	int fMoves;
 };

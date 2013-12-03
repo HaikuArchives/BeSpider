@@ -23,8 +23,14 @@ SpiderApplication::SpiderApplication()
 
 void SpiderApplication::AboutRequested()
 {
-	// TODO Replace with real about window
-	(new BAlert("AboutAlert", "BeSpider 0.1\na spider solitaire clone for Haiku\n\nBeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>\nDistributed under the terms of the MIT license.\n\nSVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente\nLicensed under GNU Lesser General Public License 2.1.\n\nFanfare sound (c) 2009 Anthony Batiste\nLicensed under Creative Commons Attribution 3.0.", "OK"))->Go();
+	(new BAlert("AboutAlert", "BeSpider 0.1\n"
+	"a spider solitaire clone for Haiku\n\n"
+	"BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>\n"
+	"Distributed under the terms of the MIT license.\n\n"
+	"SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente\n"
+	"Licensed under GNU Lesser General Public License 2.1.\n\n"
+	"Fanfare sound (c) 2009 Anthony Batiste\n"
+	"Licensed under Creative Commons Attribution 3.0.", "OK"))->Go();
 }
 
 
