@@ -38,15 +38,15 @@ void SpiderWindow::MessageReceived(BMessage* message)
 	case kNewGameMessage:
 		fView->NewGame();
 		break;
-	case kDifficulityMessage:
-		question = new BAlert("DiffAlert", "Choose difficulity level.",
+	case kDifficultyMessage:
+		question = new BAlert("DiffAlert", "Choose difficulty level.",
 			"Easy (1 color)", "Medium (2 colors)", "Hard (4 colors)",
 			B_WIDTH_AS_USUAL, B_IDEA_ALERT);
 		question->Go(fDiffSet);
 		break;
 	case kDiffChosenMessage:
 		message->FindInt32("which", &response);
-		fView->ChangeDifficulity(response);
+		fView->ChangeDifficulty(response);
 		break;
 	default:
 		BWindow::MessageReceived(message);
@@ -59,8 +59,8 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	BMenuBar* menu = new BMenuBar("MenuBar");
 
 	menu->AddItem(new BMenuItem("New game", new BMessage(kNewGameMessage)));
-	menu->AddItem(new BMenuItem("Change difficulity",
-		new BMessage(kDifficulityMessage)));
+	menu->AddItem(new BMenuItem("Change difficulty",
+		new BMessage(kDifficultyMessage)));
 
 	BMenuItem* about = new BMenuItem("About", new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);

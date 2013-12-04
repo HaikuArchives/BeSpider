@@ -12,7 +12,7 @@
 
 
 const int32 kNewGameMessage = 'NewG';
-const int32 kDifficulityMessage = 'Diff';
+const int32 kDifficultyMessage = 'Diff';
 const int32 kDiffChosenMessage = 'DiCh';
 
 

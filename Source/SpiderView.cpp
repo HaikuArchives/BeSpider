@@ -24,7 +24,7 @@ SpiderView::SpiderView()
 
 	_LoadBitmaps();
 
-	// Set easy difficulity
+	// Set easy difficulty
 	fColors = 1;
 	fDecks = 8;
 
@@ -331,9 +331,9 @@ void SpiderView::NewGame()
 }
 
 
-void SpiderView::ChangeDifficulity(int difficulity)
+void SpiderView::ChangeDifficulty(int difficulty)
 {
-	switch (difficulity) {
+	switch (difficulty) {
 	default:
 	case 0:
 		fColors = 1;

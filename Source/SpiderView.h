@@ -40,7 +40,7 @@ public:
 	virtual void MouseUp(BPoint point);
 
 	void NewGame();
-	void ChangeDifficulity(int difficulity);
+	void ChangeDifficulty(int difficulty);
 
 private:
 	void _LoadBitmaps();
