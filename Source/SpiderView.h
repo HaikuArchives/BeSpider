@@ -21,10 +21,10 @@ enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
 
 
 typedef struct card {
-	short fValue = -1;
-	short fColor = 0;
-	bool fRevealed = false;	
-	short fEffect = E_NONE;
+	short fValue;
+	short fColor;
+	bool fRevealed;
+	short fEffect;
 } card;
 
 
@@ -61,8 +61,8 @@ private:
 	short fStackingCard;
 	short fFreeCards[4][13];
 
-	int fColors = 1;
-	int fDecks = 8;
+	int fColors;
+	int fDecks;
 
 	short fPickedCardBoardPos[1];
 	BPoint fPickedCardPos;

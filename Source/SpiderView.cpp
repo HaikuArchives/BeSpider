@@ -24,6 +24,10 @@ SpiderView::SpiderView()
 
 	_LoadBitmaps();
 
+	// Set easy difficulity
+	fColors = 1;
+	fDecks = 8;
+
 	_GenerateBoard();
 }
 
@@ -420,7 +424,9 @@ void SpiderView::_GenerateBoard()
 	for (short i = 0; i != 10; i++)
 		for (short j = 0; j != 25; j++) {
 			fBoard[i][j].fValue = -1;
+			fBoard[i][j].fColor = 0;
 			fBoard[i][j].fRevealed = false;
+			fBoard[i][j].fEffect = E_NONE;
 		}
 
 	srand(time(NULL));
