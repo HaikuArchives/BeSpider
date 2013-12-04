@@ -41,6 +41,7 @@ public:
 
 	void NewGame();
 	void ChangeDifficulty(int difficulty);
+	void Hint();
 
 private:
 	void _LoadBitmaps();
@@ -64,12 +65,17 @@ private:
 	int fColors;
 	int fDecks;
 
-	short fPickedCardBoardPos[1];
+	short fPickedCardBoardPos[2];
 	BPoint fPickedCardPos;
 	card fPickedCard;
 	bool fIsCardPicked;
 	bool fIsStackPicked;
 	short fLastPickedCardPos;
+
+	short fIsHintShown;
+	card* fHints[2];
+	short fHintBoardPos[2];
+	short fNoMoves;
 
 	short fStacked;
 	short fStackedColor[8];

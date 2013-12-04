@@ -14,6 +14,7 @@
 const int32 kNewGameMessage = 'NewG';
 const int32 kDifficultyMessage = 'Diff';
 const int32 kDiffChosenMessage = 'DiCh';
+const int32 kHintMessage = 'Hint';
 
 
 class SpiderWindow : public BWindow {

@@ -59,6 +59,12 @@ void SpiderView::Draw(BRect rect)
 					case E_ALPHA75:
 						SetHighColor(0, 85, 0, 190);
 						break;
+					case E_GREEN:
+						SetHighColor(0, 204, 0, 127);
+						break;
+					case E_RED:
+						SetHighColor(255, 0, 0, 127);
+						break;
 					default:
 						SetHighColor(0, 85, 0, 0);
 					}
@@ -117,13 +123,23 @@ void SpiderView::Draw(BRect rect)
 	DrawString(points, BPoint(455 - bigFont.StringWidth(points) / 2, 340));
 
 	SetFont(&smallFont);
-	DrawString("points", BPoint(455 - bigFont.StringWidth("points") / 2, 355));
+	DrawString("points", BPoint(455 - smallFont.StringWidth("points") / 2,
+		355));
 
 	SetFont(&bigFont);
 	DrawString(moves, BPoint(455 - bigFont.StringWidth(points) / 2, 375));
 
 	SetFont(&smallFont);
-	DrawString("moves", BPoint(455 - bigFont.StringWidth("moves") / 2, 390));
+	DrawString("moves", BPoint(455 - smallFont.StringWidth("moves") / 2, 390));
+
+	if (fNoMoves > -1) {
+		SetFont(&bigFont);
+		SetHighColor(255, 0, 0);
+
+		DrawString("there are no constructive moves!",
+			BPoint(455 - bigFont.StringWidth("there are no constructive moves!")
+			/ 2, 315));
+	}
 }
 
 
@@ -172,13 +188,28 @@ void SpiderView::Pulse()
 
 			fStacking = -1;
 		}
+	} else if (fIsHintShown > 0)
+		fIsHintShown--;
+	else if (fIsHintShown == 0) {
+		for (int i = fHintBoardPos[1]; i != _FindFirstFree(fHintBoardPos[0]);
+			i++)
+			fBoard[fHintBoardPos[0]][i].fEffect = E_NONE;
+
+		fHints[1]->fEffect = E_NONE;
+
+		fIsHintShown = -1;
+
+		Invalidate();
+	} else if (fNoMoves > -1) {
+		fNoMoves--;
+		Invalidate();
 	}
 }
 
 
 void SpiderView::MouseDown(BPoint point)
 {
-	if (fDealing != -1)
+	if (fDealing != -1 || fIsHintShown != -1)
 		return;
 
 	if (point.x > (900 - CARD_WIDTH - fStock * 15) && point.x < 900
@@ -352,6 +383,56 @@ void SpiderView::ChangeDifficulty(int difficulty)
 }
 
 
+void SpiderView::Hint()
+{
+	short stocksValues[10];
+	short highestCard[10];
+
+	for (short i = 0; i != 10; i++) {
+		stocksValues[i] = fBoard[i][_FindFirstFree(i) - 1].fValue;
+		highestCard[i] = _FindFirstFree(i) - 1;
+
+		for (short j = _FindFirstFree(i) - 2;; j--) {
+			if (fBoard[i][j].fRevealed == false)
+				break;
+
+			if (fBoard[i][j].fValue - stocksValues[i] == 1) {
+				stocksValues[i] = fBoard[i][j].fValue;
+				highestCard[i] = j;
+			} else
+				break;
+		}
+	}
+
+	short i = 300;
+	short x = rand() % 10;
+	short y = rand() % 10;
+	while (fBoard[y][_FindFirstFree(y) - 1].fValue - stocksValues[x] != 1) {
+		x = rand() % 10;
+		y = rand() % 10;
+		if (--i == 0) {
+			fNoMoves = 25;
+			return;
+		}
+	}
+
+	fIsHintShown = 10;
+	fHints[0] = &fBoard[x][highestCard[x]];
+	fHints[1] = &fBoard[y][_FindFirstFree(y) - 1];
+
+	fHints[0]->fEffect = E_GREEN;
+	fHintBoardPos[0] = x;
+	fHintBoardPos[1] = highestCard[x];
+
+	for (int i = fHintBoardPos[1]; i != _FindFirstFree(x); i++)
+		fBoard[x][i].fEffect = E_GREEN;
+
+	fHints[1]->fEffect = E_RED;
+
+	Invalidate();
+}
+
+
 void SpiderView::_LoadBitmaps()
 {
 	for (short i = 0; i != 14; i++) {
@@ -417,6 +498,8 @@ void SpiderView::_GenerateBoard()
 	fStacked = 0;
 	fIsCardPicked = false;
 	fIsStackPicked = false;
+	fIsHintShown = -1;
+	fNoMoves = -1;
 
 	fPoints = 200;
 	fMoves = 0;

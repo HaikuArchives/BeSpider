@@ -48,6 +48,9 @@ void SpiderWindow::MessageReceived(BMessage* message)
 		message->FindInt32("which", &response);
 		fView->ChangeDifficulty(response);
 		break;
+	case kHintMessage:
+		fView->Hint();
+		break;
 	default:
 		BWindow::MessageReceived(message);
 	}
@@ -61,6 +64,7 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	menu->AddItem(new BMenuItem("New game", new BMessage(kNewGameMessage)));
 	menu->AddItem(new BMenuItem("Change difficulty",
 		new BMessage(kDifficultyMessage)));
+	menu->AddItem(new BMenuItem("Hint", new BMessage(kHintMessage)));
 
 	BMenuItem* about = new BMenuItem("About", new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
