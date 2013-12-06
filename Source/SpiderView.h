@@ -7,6 +7,7 @@
 
 
 #include <Bitmap.h>
+#include <FileGameSound.h>
 #include <Point.h>
 #include <Rect.h>
 #include <SimpleGameSound.h>
@@ -53,7 +54,7 @@ private:
 	BBitmap* fBack;
 
 	BSimpleGameSound* fShuffle;
-	BSimpleGameSound* fFanfare;
+	BFileGameSound* fFanfare;
 
 	card fBoard[10][25];
 	short fStock;

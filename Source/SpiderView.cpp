@@ -485,10 +485,10 @@ void SpiderView::_LoadBitmaps()
 	shuffleEntry.GetRef(&shuffleRef);
 
 	BEntry fanfareEntry = BEntry(fanfarePath.String());
-	shuffleEntry.GetRef(&fanfareRef);
+	fanfareEntry.GetRef(&fanfareRef);
 
 	fShuffle = new BSimpleGameSound(&shuffleRef);
-	fFanfare = new BSimpleGameSound(&fanfareRef);
+	fFanfare = new BFileGameSound(&fanfareRef, false);
 
 	Invalidate();
 }
