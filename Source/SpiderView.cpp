@@ -86,22 +86,27 @@ void SpiderView::Draw(BRect rect)
 
 	if (fIsCardPicked)
 		DrawBitmap(fCards[fPickedCard.fColor][fPickedCard.fValue],
-			BRect(fPickedCardPos.x, fPickedCardPos.y,
-			fPickedCardPos.x + CARD_WIDTH, fPickedCardPos.y + CARD_HEIGHT));
+			BRect(fPickedCardPos.x - fPickedCardMouse.x,
+			fPickedCardPos.y - fPickedCardMouse.y,
+			fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
+			fPickedCardPos.y + CARD_HEIGHT - fPickedCardMouse.y));
 
 	if (fIsStackPicked) {
 		DrawBitmap(fCards[fPickedCard.fColor][fPickedCard.fValue],
-			BRect(fPickedCardPos.x, fPickedCardPos.y,
-			fPickedCardPos.x + CARD_WIDTH, fPickedCardPos.y + CARD_HEIGHT));
+			BRect(fPickedCardPos.x - fPickedCardMouse.x,
+			fPickedCardPos.y - fPickedCardMouse.y,
+			fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
+			fPickedCardPos.y + CARD_HEIGHT - fPickedCardMouse.y));
 
 		for (short i = 0; i != fLastPickedCardPos - fPickedCardBoardPos[1] + 1;
 			i++) {
 			card pCard =
 				fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1] + i];
 			DrawBitmap(fCards[pCard.fColor][pCard.fValue],
-				BRect(fPickedCardPos.x, fPickedCardPos.y + i * 15,
-				fPickedCardPos.x + CARD_WIDTH,
-				fPickedCardPos.y + CARD_HEIGHT + i * 15));
+				BRect(fPickedCardPos.x - fPickedCardMouse.x,
+				fPickedCardPos.y + i * 15 - fPickedCardMouse.y,
+				fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
+				fPickedCardPos.y + CARD_HEIGHT + i * 15 - fPickedCardMouse.y));
 		}
 	}
 
@@ -249,6 +254,8 @@ void SpiderView::MouseDown(BPoint point)
 			fPickedCardBoardPos[1] = first-1;
 			fPickedCardPos = point;
 			fPickedCard = fBoard[stack][first-1];
+			fPickedCardMouse = BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
+				 point.y - first * 15);
 			fBoard[stack][first-1].fValue = -1;
 			fIsCardPicked = true;
 
@@ -278,6 +285,8 @@ void SpiderView::MouseDown(BPoint point)
 				fPickedCardBoardPos[0] = stack;
 				fPickedCardBoardPos[1] = picked;
 				fPickedCardPos = point;
+				fPickedCardMouse = BPoint((int)(point.x - 10) %
+					(CARD_WIDTH + 10), point.y - (picked + 1) * 15);
 				fPickedCard = fBoard[stack][picked];
 				fBoard[stack][picked].fValue = -1;
 

@@ -67,6 +67,7 @@ private:
 
 	short fPickedCardBoardPos[2];
 	BPoint fPickedCardPos;
+	BPoint fPickedCardMouse;
 	card fPickedCard;
 	bool fIsCardPicked;
 	bool fIsStackPicked;
