@@ -7,6 +7,7 @@
 
 
 #include <Bitmap.h>
+#include <Entry.h>
 #include <FileGameSound.h>
 #include <Point.h>
 #include <Rect.h>
@@ -52,9 +53,10 @@ private:
 
 	BBitmap* fCards[4][13];
 	BBitmap* fBack;
+	BBitmap* fEmpty;
 
 	BSimpleGameSound* fShuffle;
-	BFileGameSound* fFanfare;
+	entry_ref fFanfare;
 
 	card fBoard[10][25];
 	short fStock;
@@ -73,6 +75,7 @@ private:
 	bool fIsCardPicked;
 	bool fIsStackPicked;
 	short fLastPickedCardPos;
+	bool fMouseLock;
 
 	short fIsHintShown;
 	card* fHints[2];

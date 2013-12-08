@@ -36,7 +36,9 @@ void SpiderView::Draw(BRect rect)
 {
 	SetDrawingMode(B_OP_ALPHA);
 	
-	for (short i = 0; i != 10; i++)
+	for (short i = 0; i != 10; i++) {
+		DrawBitmap(fEmpty, BRect(10 + i * (CARD_WIDTH + 10), 15,
+			10 + (i + 1) * CARD_WIDTH + i * 10, 15 + CARD_HEIGHT));
 		for (short j = 0; j != 26; j++)
 			if (fBoard[i][j].fValue != -1) {
 				if (fBoard[i][j].fRevealed == true) {
@@ -75,6 +77,7 @@ void SpiderView::Draw(BRect rect)
 						CARD_HEIGHT + (j + 1) * 15));
 			} else
 				break;
+	}
 	
 	for (short i = 0; i != fStacked; i++)
 		DrawBitmap(fCards[fStackedColor[i]][12], BRect(i*15 + 10,
@@ -150,8 +153,10 @@ void SpiderView::Draw(BRect rect)
 
 void SpiderView::Pulse()
 {
-	if (fDealing > 9)
+	if (fDealing > 9) {
 		fDealing = -1;
+		_CheckBoard();
+	}
 
 	if (fDealing != -1) {
 		switch (fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect) {
@@ -214,8 +219,10 @@ void SpiderView::Pulse()
 
 void SpiderView::MouseDown(BPoint point)
 {
-	if (fDealing != -1 || fIsHintShown != -1)
+	if (fDealing != -1 || fIsHintShown != -1 || fMouseLock)
 		return;
+
+	fMouseLock = true;
 
 	if (point.x > (900 - CARD_WIDTH - fStock * 15) && point.x < 900
 		&& point.y > 390 - CARD_HEIGHT && point.y < 390) {
@@ -332,6 +339,7 @@ void SpiderView::MouseUp(BPoint point)
 
 		fIsCardPicked = false;
 
+		_CheckBoard();
 		Invalidate();
 	} else if (fIsStackPicked) {
 		short stack = (point.x - 10) / (CARD_WIDTH + 10);
@@ -357,10 +365,11 @@ void SpiderView::MouseUp(BPoint point)
 
 		fIsStackPicked = false;
 
+		_CheckBoard();
 		Invalidate();
 	}
 
-	_CheckBoard();
+	fMouseLock = false;
 }
 
 
@@ -394,6 +403,9 @@ void SpiderView::ChangeDifficulty(int difficulty)
 
 void SpiderView::Hint()
 {
+	if (fIsHintShown != -1 || fDealing != -1)
+		return;
+
 	short stocksValues[10];
 	short highestCard[10];
 
@@ -413,7 +425,7 @@ void SpiderView::Hint()
 		}
 	}
 
-	short i = 300;
+	short i = 600;
 	short x = rand() % 10;
 	short y = rand() % 10;
 	while (fBoard[y][_FindFirstFree(y) - 1].fValue - stocksValues[x] != 1) {
@@ -467,6 +479,7 @@ void SpiderView::_LoadBitmaps()
 	fCards[3][0] = BTranslationUtils::GetBitmapFile("Artwork/1_diamond.png");
 
 	fBack = BTranslationUtils::GetBitmapFile("Artwork/back.png");
+	fEmpty = BTranslationUtils::GetBitmapFile("Artwork/empty.png");
 
 	/* Relative paths given to BSimpleGameSound work
 	 * only when run from console */
@@ -479,16 +492,15 @@ void SpiderView::_LoadBitmaps()
 	shufflePath << appDir->Path() << "/Artwork/shuffle.wav";
 	fanfarePath << appDir->Path() << "/Artwork/fanfare.wav";
 
-	entry_ref shuffleRef, fanfareRef;
+	entry_ref shuffleRef;
 
 	BEntry shuffleEntry = BEntry(shufflePath.String());
 	shuffleEntry.GetRef(&shuffleRef);
 
 	BEntry fanfareEntry = BEntry(fanfarePath.String());
-	fanfareEntry.GetRef(&fanfareRef);
+	fanfareEntry.GetRef(&fFanfare);
 
 	fShuffle = new BSimpleGameSound(&shuffleRef);
-	fFanfare = new BFileGameSound(&fanfareRef, false);
 
 	Invalidate();
 }
@@ -509,6 +521,7 @@ void SpiderView::_GenerateBoard()
 	fIsStackPicked = false;
 	fIsHintShown = -1;
 	fNoMoves = -1;
+	fMouseLock = false;
 
 	fPoints = 200;
 	fMoves = 0;
@@ -594,13 +607,12 @@ void SpiderView::_CheckBoard()
 
 			Invalidate();
 
-			fShuffle->StartPlaying();
+			if (fStacked == 8) {
+				(new BFileGameSound(&fFanfare, false))->StartPlaying();
+				(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
+			} else
+				fShuffle->StartPlaying();
 		}
-	}
-
-	if (fStacked == 8) {
-		fFanfare->StartPlaying();
-		(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
 	}
 }
 
