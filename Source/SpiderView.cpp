@@ -251,7 +251,7 @@ void SpiderView::MouseDown(BPoint point)
 		Invalidate();
 	}
 
-	short stack = (point.x - 10) / (CARD_WIDTH + 10);
+	short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 	if (stack <= 9) {
 		short first = _FindFirstFree(stack);
 
@@ -268,7 +268,7 @@ void SpiderView::MouseDown(BPoint point)
 
 			Invalidate();
 		} else if (point.y < 15 * first + 10) {
-			short picked = point.y / 15 - 1;
+			short picked = (int)(point.y / 15) - 1;
 
 			if (fBoard[stack][picked].fRevealed == false)
 				return;
@@ -322,7 +322,7 @@ void SpiderView::MouseMoved(BPoint point,
 void SpiderView::MouseUp(BPoint point)
 {
 	if (fIsCardPicked) {
-		short stack = (point.x - 10) / (CARD_WIDTH + 10);
+		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 
 		if (fBoard[stack][_FindFirstFree(stack)-1].fValue -
 			fPickedCard.fValue == 1 || _FindFirstFree(stack) == 0) {
@@ -342,7 +342,7 @@ void SpiderView::MouseUp(BPoint point)
 		_CheckBoard();
 		Invalidate();
 	} else if (fIsStackPicked) {
-		short stack = (point.x - 10) / (CARD_WIDTH + 10);
+		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 		if (fBoard[stack][_FindFirstFree(stack)-1].fValue -
 			fPickedCard.fValue == 1 || _FindFirstFree(stack) == 0) {
 			fBoard[stack][_FindFirstFree(stack)] = fPickedCard;
