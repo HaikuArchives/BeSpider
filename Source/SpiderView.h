@@ -11,6 +11,7 @@
 #include <FileGameSound.h>
 #include <Point.h>
 #include <Rect.h>
+#include <Resources.h>
 #include <SimpleGameSound.h>
 #include <View.h>
 
@@ -46,6 +47,7 @@ public:
 	void Hint();
 
 private:
+	BSimpleGameSound* _LoadSound(const char* resourceName);
 	void _LoadBitmaps();
 	void _GenerateBoard();
 	void _CheckBoard();
@@ -55,8 +57,9 @@ private:
 	BBitmap* fBack;
 	BBitmap* fEmpty;
 
+	BResources* fResources;
 	BSimpleGameSound* fShuffle;
-	entry_ref fFanfare;
+	BSimpleGameSound* fFanfare;
 
 	card fBoard[10][25];
 	short fStock;

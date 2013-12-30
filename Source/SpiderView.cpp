@@ -13,7 +13,7 @@
 #include <TranslationUtils.h>
 
 #include <stdlib.h>
-
+#include <stdio.h>
 
 SpiderView::SpiderView()
 	:
@@ -454,53 +454,55 @@ void SpiderView::Hint()
 }
 
 
+BSimpleGameSound* SpiderView::_LoadSound(const char* resourceName)
+{
+	size_t size;
+	const void* data = fResources->LoadResource('rSFX', resourceName, &size);
+	if(data == NULL) {
+		printf("Error loading sound resource: %s\n", resourceName);
+		return NULL;
+	}
+	
+	gs_audio_format format;
+	format.frame_rate = 44100;
+	format.channel_count = 2; // stereo
+	format.format = 0x11;
+	format.byte_order = 0;
+	format.buffer_size = 0; // auto
+	
+	BSimpleGameSound* sound = new BSimpleGameSound(data, size, &format);
+	
+	if(sound->InitCheck() != B_OK) {
+		printf("Error loading sound resource: %s\n", resourceName);
+	}
+	return sound;
+}
+
+
 void SpiderView::_LoadBitmaps()
 {
+	char* suits[] = {
+		"spade",
+		"heart",
+		"club",
+		"diamond"
+	};
+	// load images
+	BString filename;
 	for (short i = 0; i != 14; i++) {
-		BString filename = BString();
-		filename << "Artwork/" << i + 1 << "_spade.png";
-		fCards[0][i] = BTranslationUtils::GetBitmapFile(filename.String());
-
-		filename = BString();
-		filename << "Artwork/" << i + 1 << "_heart.png";
-		fCards[1][i] = BTranslationUtils::GetBitmapFile(filename.String());
-
-		filename = BString();
-		filename << "Artwork/" << i + 1 << "_club.png";
-		fCards[2][i] = BTranslationUtils::GetBitmapFile(filename.String());
-
-		filename = BString();
-		filename << "Artwork/" << i + 1 << "_diamond.png";
-		fCards[3][i] = BTranslationUtils::GetBitmapFile(filename.String());
+		for(short j = 0; j < 4; j++) {
+			filename = "";
+			filename << "Artwork/" << i + 1 << "_" << suits[j] << ".png";
+			fCards[j][i] = BTranslationUtils::GetBitmap('rGFX', filename);
+		}
 	}
+	fBack = BTranslationUtils::GetBitmap('rGFX', "Artwork/back.png");
+	fEmpty = BTranslationUtils::GetBitmap('rGFX', "Artwork/empty.png");
 
-	fCards[1][0] = BTranslationUtils::GetBitmapFile("Artwork/1_heart.png");
-	fCards[2][0] = BTranslationUtils::GetBitmapFile("Artwork/1_club.png");
-	fCards[3][0] = BTranslationUtils::GetBitmapFile("Artwork/1_diamond.png");
-
-	fBack = BTranslationUtils::GetBitmapFile("Artwork/back.png");
-	fEmpty = BTranslationUtils::GetBitmapFile("Artwork/empty.png");
-
-	/* Relative paths given to BSimpleGameSound work
-	 * only when run from console */
-	app_info info;
-	be_app->GetAppInfo(&info);
-	BPath* appDir = new BPath(&info.ref);
-	appDir->GetParent(appDir);
-
-	BString shufflePath, fanfarePath = BString();
-	shufflePath << appDir->Path() << "/Artwork/shuffle.wav";
-	fanfarePath << appDir->Path() << "/Artwork/fanfare.wav";
-
-	entry_ref shuffleRef;
-
-	BEntry shuffleEntry = BEntry(shufflePath.String());
-	shuffleEntry.GetRef(&shuffleRef);
-
-	BEntry fanfareEntry = BEntry(fanfarePath.String());
-	fanfareEntry.GetRef(&fFanfare);
-
-	fShuffle = new BSimpleGameSound(&shuffleRef);
+	// load audio
+	fResources = be_app->AppResources();
+	fShuffle = _LoadSound("Artwork/shuffle.wav");
+	fFanfare = _LoadSound("Artwork/fanfare.wav");
 
 	Invalidate();
 }
@@ -608,7 +610,7 @@ void SpiderView::_CheckBoard()
 			Invalidate();
 
 			if (fStacked == 8) {
-				(new BFileGameSound(&fFanfare, false))->StartPlaying();
+				fFanfare->StartPlaying();
 				(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
 			} else
 				fShuffle->StartPlaying();
