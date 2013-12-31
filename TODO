@@ -2,4 +2,10 @@
 
 * make appearance of the game more appealing
 
-* package and localize application
+* package application
+
+* include locale files when building
+
+* see if sound is actually working
+
+* dragging a card off the right border crashes the program

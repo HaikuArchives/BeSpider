@@ -8,9 +8,13 @@
 
 #include <Alert.h>
 #include <Application.h>
+#include <Catalog.h>
 #include <LayoutBuilder.h>
 #include <MenuBar.h>
 #include <MenuItem.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "BeSpider"
 
 
 SpiderWindow::SpiderWindow(BRect frame, const char* title)
@@ -39,8 +43,9 @@ void SpiderWindow::MessageReceived(BMessage* message)
 		fView->NewGame();
 		break;
 	case kDifficultyMessage:
-		question = new BAlert("DiffAlert", "Choose difficulty level.",
-			"Easy (1 color)", "Medium (2 colors)", "Hard (4 colors)",
+		question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
+			B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
+			B_TRANSLATE("Hard (4 colors)"),
 			B_WIDTH_AS_USUAL, B_IDEA_ALERT);
 		question->Go(fDiffSet);
 		break;
@@ -61,16 +66,20 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 {
 	BMenuBar* menu = new BMenuBar("MenuBar");
 
-	menu->AddItem(new BMenuItem("New game", new BMessage(kNewGameMessage)));
-	menu->AddItem(new BMenuItem("Change difficulty",
+	menu->AddItem(new BMenuItem(B_TRANSLATE("New game"),
+		new BMessage(kNewGameMessage)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE("Change difficulty"),
 		new BMessage(kDifficultyMessage)));
-	menu->AddItem(new BMenuItem("Hint", new BMessage(kHintMessage)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"),
+		new BMessage(kHintMessage)));
 
-	BMenuItem* about = new BMenuItem("About", new BMessage(B_ABOUT_REQUESTED));
+	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About", "Menu bar"),
+		new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
 	menu->AddItem(about);
 
-	menu->AddItem(new BMenuItem("Quit", new BMessage(B_QUIT_REQUESTED)));
+	menu->AddItem(new BMenuItem(B_TRANSLATE_CONTEXT("Quit", "Menu bar"),
+		new BMessage(B_QUIT_REQUESTED)));
 
 	return menu;
 }

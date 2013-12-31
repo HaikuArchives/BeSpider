@@ -6,6 +6,7 @@
 
 #include <Alert.h>
 #include <Application.h>
+#include <Catalog.h>
 #include <Entry.h>
 #include <Path.h>
 #include <Roster.h>
@@ -15,6 +16,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "BeSpider"
+
 
 SpiderView::SpiderView()
 	:
@@ -131,21 +136,21 @@ void SpiderView::Draw(BRect rect)
 	DrawString(points, BPoint(455 - bigFont.StringWidth(points) / 2, 340));
 
 	SetFont(&smallFont);
-	DrawString("points", BPoint(455 - smallFont.StringWidth("points") / 2,
+	DrawString(B_TRANSLATE("points"), BPoint(455 - smallFont.StringWidth(B_TRANSLATE("points")) / 2,
 		355));
 
 	SetFont(&bigFont);
 	DrawString(moves, BPoint(455 - bigFont.StringWidth(points) / 2, 375));
 
 	SetFont(&smallFont);
-	DrawString("moves", BPoint(455 - smallFont.StringWidth("moves") / 2, 390));
+	DrawString(B_TRANSLATE("moves"), BPoint(455 - smallFont.StringWidth(B_TRANSLATE("moves")) / 2, 390));
 
 	if (fNoMoves > -1) {
 		SetFont(&bigFont);
 		SetHighColor(255, 0, 0);
 
-		DrawString("there are no constructive moves!",
-			BPoint(455 - bigFont.StringWidth("there are no constructive moves!")
+		DrawString(B_TRANSLATE("there are no constructive moves!"),
+			BPoint(455 - bigFont.StringWidth(B_TRANSLATE("there are no constructive moves!"))
 			/ 2, 315));
 	}
 	
@@ -669,7 +674,8 @@ void SpiderView::_CheckBoard()
 
 			if (fStacked == 8) {
 				fFanfare->StartPlaying();
-				(new BAlert("WinAlert", "YOU WON!", "OK!"))->Go();
+				(new BAlert("WinAlert", B_TRANSLATE("YOU WON!"),
+					B_TRANSLATE_CONTEXT("OK!", "Win alert")))->Go();
 			} else
 				fShuffle->StartPlaying();
 		}

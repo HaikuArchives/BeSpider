@@ -7,6 +7,11 @@
 #include "SpiderWindow.h"
 
 #include <Alert.h>
+#include <Catalog.h>
+#include <String.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "BeSpider"
 
 
 SpiderApplication::SpiderApplication()
@@ -23,14 +28,17 @@ SpiderApplication::SpiderApplication()
 
 void SpiderApplication::AboutRequested()
 {
-	(new BAlert("AboutAlert", "BeSpider 0.1\n"
-	"a spider solitaire clone for Haiku\n\n"
-	"BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>\n"
-	"Distributed under the terms of the MIT license.\n\n"
-	"SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente\n"
-	"Licensed under GNU Lesser General Public License 2.1.\n\n"
-	"Fanfare sound (c) 2009 Anthony Batiste\n"
-	"Licensed under Creative Commons Attribution 3.0.", "OK"))->Go();
+	BString aboutText = "";
+	aboutText << "BeSpider 0.1" << "\n"
+	<< B_TRANSLATE("a spider solitaire clone for Haiku")<<"\n\n"
+	<< B_TRANSLATE("BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>")<<"\n"
+	<< B_TRANSLATE("Distributed under the terms of the MIT license.")<<"\n\n"
+	<< B_TRANSLATE("SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente")<<"\n"
+	<< B_TRANSLATE("Licensed under GNU Lesser General Public License 2.1.")<<"\n\n"
+	<< B_TRANSLATE("Fanfare sound (c) 2009 Anthony Batiste")<<"\n"
+	<< B_TRANSLATE("Licensed under Creative Commons Attribution 3.0.");
+	
+	(new BAlert("AboutAlert", aboutText, B_TRANSLATE_CONTEXT("OK", "About alert")))->Go();
 }
 
 
