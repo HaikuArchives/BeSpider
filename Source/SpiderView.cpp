@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 SpiderView::SpiderView()
 	:
@@ -26,7 +27,9 @@ SpiderView::SpiderView()
 
 	// Set easy difficulty
 	fColors = 1;
-	fDecks = 8;
+	
+	for(short i = 0; i < CARDS_IN_PLAY; i++)
+		fAllCards[i] = NULL;
 
 	_GenerateBoard();
 }
@@ -36,22 +39,22 @@ void SpiderView::Draw(BRect rect)
 {
 	SetDrawingMode(B_OP_ALPHA);
 	
-	for (short i = 0; i != 10; i++) {
-		DrawBitmap(fEmpty, BRect(10 + i * (CARD_WIDTH + 10), 15,
-			10 + (i + 1) * CARD_WIDTH + i * 10, 15 + CARD_HEIGHT));
-		for (short j = 0; j != 26; j++)
-			if (fBoard[i][j].fValue != -1) {
-				if (fBoard[i][j].fRevealed == true) {
-					if (fBoard[i][j].fEffect == E_HIDDEN)
-						continue;
-					BRect rect = BRect(10 + i * (CARD_WIDTH + 10), (j + 1) * 15,
-						10 + (i + 1) * CARD_WIDTH + i * 10,
-						CARD_HEIGHT + (j + 1) * 15);
-
-					DrawBitmap(fCards[fBoard[i][j].fColor][fBoard[i][j].fValue],
+	for(short i = 0; i < 10; i++) {
+		BRect rect(10 + i * (CARD_WIDTH + 10), 15,
+				10 + (i + 1) * CARD_WIDTH + i * 10, 15 + CARD_HEIGHT);
+		if(fBoard[i] == NULL)
+			DrawBitmap(fEmpty, rect);
+		else {
+			card* currentCard;
+			for(currentCard = fBoard[i]; currentCard != NULL;
+					currentCard = currentCard->fNextCard) {
+				if(currentCard->fRevealed == false) {
+					DrawBitmap(fBack, rect);
+				} else if(currentCard->fEffect != E_HIDDEN) {
+					DrawBitmap(
+						fCards[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue],
 						rect);
-
-					switch (fBoard[i][j].fEffect) {
+					switch(currentCard->fEffect) {
 					case E_ALPHA25:
 						SetHighColor(0, 85, 0, 63);
 						break;
@@ -71,45 +74,31 @@ void SpiderView::Draw(BRect rect)
 						SetHighColor(0, 85, 0, 0);
 					}
 					FillRect(rect);
-				} else
-					DrawBitmap(fBack, BRect(10 + i * (CARD_WIDTH + 10),
-						(j + 1) * 15, 10 + (i + 1) * CARD_WIDTH + i * 10,
-						CARD_HEIGHT + (j + 1) * 15));
-			} else
-				break;
+				}
+				rect.top += 15;
+				rect.bottom = rect.top + CARD_HEIGHT;
+			}
+		}
 	}
 	
 	for (short i = 0; i != fStacked; i++)
-		DrawBitmap(fCards[fStackedColor[i]][12], BRect(i*15 + 10,
+		DrawBitmap(fCards[fStackedColor[i]*CARDS_IN_SUIT+CARDS_IN_SUIT-1], BRect(i*15 + 10,
 			390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
 
 	for (short i = 0; i != fStock; i++)
 		DrawBitmap(fBack, BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT,
 			900 - i*15, 390));
 
-	if (fIsCardPicked)
-		DrawBitmap(fCards[fPickedCard.fColor][fPickedCard.fValue],
-			BRect(fPickedCardPos.x - fPickedCardMouse.x,
-			fPickedCardPos.y - fPickedCardMouse.y,
-			fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
-			fPickedCardPos.y + CARD_HEIGHT - fPickedCardMouse.y));
-
-	if (fIsStackPicked) {
-		DrawBitmap(fCards[fPickedCard.fColor][fPickedCard.fValue],
-			BRect(fPickedCardPos.x - fPickedCardMouse.x,
-			fPickedCardPos.y - fPickedCardMouse.y,
-			fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
-			fPickedCardPos.y + CARD_HEIGHT - fPickedCardMouse.y));
-
-		for (short i = 0; i != fLastPickedCardPos - fPickedCardBoardPos[1] + 1;
-			i++) {
-			card pCard =
-				fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1] + i];
-			DrawBitmap(fCards[pCard.fColor][pCard.fValue],
+	if (fIsCardPicked) {
+		card* currentCard = fPickedCard;
+		for(short i = 0; currentCard != NULL; i++) {
+			DrawBitmap(fCards[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue],
 				BRect(fPickedCardPos.x - fPickedCardMouse.x,
 				fPickedCardPos.y + i * 15 - fPickedCardMouse.y,
 				fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
 				fPickedCardPos.y + CARD_HEIGHT + i * 15 - fPickedCardMouse.y));
+			
+			currentCard = currentCard->fNextCard;
 		}
 	}
 
@@ -158,34 +147,44 @@ void SpiderView::Pulse()
 		_CheckBoard();
 	}
 
-	if (fDealing != -1) {
-		switch (fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect) {
+	if (fDealing != -1) { // dealing a new row
+		card* lastCard = _FindLastUsed(fDealing);
+		
+		switch (lastCard->fEffect) {
 		case E_ALPHA75:
-			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_ALPHA50;
+			lastCard->fEffect = E_ALPHA50;
 			break;
 		case E_ALPHA50:
-			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_ALPHA25;
-			fBoard[fDealing+1][_FindFirstFree(fDealing+1)-1].fEffect =
-				E_ALPHA75;
+			lastCard->fEffect = E_ALPHA25;
+			// start next animation
+			if(fDealing < 9)
+				_FindLastUsed(fDealing+1)->fEffect = E_ALPHA75;
 			break;
 		case E_ALPHA25:
-			fBoard[fDealing][_FindFirstFree(fDealing)-1].fEffect = E_NONE;
-			fDealing++;
+			lastCard->fEffect = E_NONE;
+			fDealing++; // move to next card
 			break;
 		}
 
 		Invalidate();
 	} else if (fStacking != -1) {
-		switch (fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect) {
+		card* lastCard = _FindLastUsed(fStacking);
+		
+		switch (lastCard->fEffect) {
 		case E_ALPHA25:
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA50;
+			lastCard->fEffect = E_ALPHA50;
 			break;
 		case E_ALPHA50:
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA75;
+			lastCard->fEffect = E_ALPHA75;
 			break;
 		case E_ALPHA75:
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fValue = -1;
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_ALPHA25;
+			// start next animation (if next card not stacking,
+			//   it will be reset later)
+			lastCard->fPrevCard->fEffect = E_ALPHA25;
+			// detach current card
+			lastCard->fPrevCard->fNextCard = NULL;
+			lastCard->fPrevCard = NULL;
+			// move to next card
 			fStackingCard++;
 			break;
 		}
@@ -193,17 +192,22 @@ void SpiderView::Pulse()
 		Invalidate();
 
 		if (fStackingCard == 14) {
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fRevealed = true;
-			fBoard[fStacking][_FindFirstFree(fStacking)-1].fEffect = E_NONE;
+			card* lastCard = _FindLastUsed(fStacking);
+			if(lastCard != NULL) {
+				lastCard->fRevealed = true;
+				lastCard->fEffect = E_NONE;
+			}
 
 			fStacking = -1;
 		}
 	} else if (fIsHintShown > 0)
 		fIsHintShown--;
 	else if (fIsHintShown == 0) {
-		for (int i = fHintBoardPos[1]; i != _FindFirstFree(fHintBoardPos[0]);
-			i++)
-			fBoard[fHintBoardPos[0]][i].fEffect = E_NONE;
+		for (card* currentCard = fHints[0]; currentCard != NULL;
+				currentCard = currentCard->fNextCard) {
+			if(currentCard->fEffect == E_GREEN)
+				currentCard->fEffect = E_NONE;
+		}
 
 		fHints[1]->fEffect = E_NONE;
 
@@ -224,82 +228,76 @@ void SpiderView::MouseDown(BPoint point)
 
 	fMouseLock = true;
 
+	// use a stock
 	if (point.x > (900 - CARD_WIDTH - fStock * 15) && point.x < 900
 		&& point.y > 390 - CARD_HEIGHT && point.y < 390) {
 		if (fStock == 0) return;
 		for (short i = 0; i != 10; i++) {
-			short random = rand() % 13;
-			short rcolor = rand() % fColors;
-			while (fFreeCards[rcolor][random] == 0) {
-				random = rand() % 13;
-				rcolor = rand() % fColors;
-			}
+			// add a random card to the pile
+			card* randomCard = _PickRandomCard();
+			_AddCardToPile(i, randomCard);
 
-			fBoard[i][_FindFirstFree(i)].fColor = rcolor;
-			fBoard[i][_FindFirstFree(i)].fEffect = E_HIDDEN;
-			fBoard[i][_FindFirstFree(i)].fValue = random;
-			fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
-			fFreeCards[rcolor][random]--;
+			// hide card
+			randomCard->fEffect = E_HIDDEN;
+			randomCard->fRevealed = true;
+			
+			if(i == 0) { // if first pile
+				// start appearing animation
+				randomCard->fEffect = E_ALPHA75;
+				fDealing = 0;
+			}
 		}
 
-		fBoard[0][_FindFirstFree(0)-1].fEffect = E_ALPHA75;
-		fDealing = 0;
-
-		fStock--;
+		fStock--; // one less stock available
 
 		fShuffle->StartPlaying();
 		Invalidate();
 	}
 
+	// pick up a stack
 	short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 	if (stack <= 9) {
-		short first = _FindFirstFree(stack);
-
-		if (point.y > 15 * first &&
-			point.y < 15 * first + CARD_HEIGHT) {
-			fPickedCardBoardPos[0] = stack;
-			fPickedCardBoardPos[1] = first-1;
-			fPickedCardPos = point;
-			fPickedCard = fBoard[stack][first-1];
-			fPickedCardMouse = BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
-				 point.y - first * 15);
-			fBoard[stack][first-1].fValue = -1;
-			fIsCardPicked = true;
-
-			Invalidate();
-		} else if (point.y < 15 * first + 10) {
-			short picked = (int)(point.y / 15) - 1;
-
-			if (fBoard[stack][picked].fRevealed == false)
-				return;
-
-			bool pickable = true;
-			short color = fBoard[stack][picked].fColor; 
-
-			for (short i = picked + 1; i != first; i++) {
-				if (fBoard[stack][picked].fValue - fBoard[stack][i].fValue ==
-				i - picked && fBoard[stack][i].fColor == color) {
-					pickable = true;
-					fLastPickedCardPos = i;
-				}
-				else
-					pickable = false;
+		// find clicked on card
+		// TODO: use mod
+		int cardNumber = 1;
+		card* picked = fBoard[stack];
+		while(picked->fNextCard != NULL) {
+			if(point.y - 15 * cardNumber < 15) {
+				break;
 			}
-
-			if (pickable) {
-				fIsStackPicked = true;
-
-				fPickedCardBoardPos[0] = stack;
-				fPickedCardBoardPos[1] = picked;
-				fPickedCardPos = point;
-				fPickedCardMouse = BPoint((int)(point.x - 10) %
-					(CARD_WIDTH + 10), point.y - (picked + 1) * 15);
-				fPickedCard = fBoard[stack][picked];
-				fBoard[stack][picked].fValue = -1;
-
-				Invalidate();
+			picked = picked->fNextCard;
+			cardNumber++;
+		}
+		if(picked->fNextCard == NULL) {
+			// on last card, if below than not clicking on card
+			if(point.y - 15 * cardNumber >= CARD_HEIGHT) {
+				return;
 			}
 		}
+		
+		if(picked->fRevealed == false)
+			return;
+		
+		card* currentCard = picked->fNextCard;
+		for(short i = 1; currentCard != NULL;
+				i++) {
+			if(picked->fColor != currentCard->fColor ||
+					picked->fValue - currentCard->fValue != i)
+				return;
+			currentCard = currentCard->fNextCard;
+		}
+		
+		fPickedCardBoardPos = stack;
+		fPickedCardPos = point;
+		fPickedCard = picked;
+		fPickedCardMouse = BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
+			 point.y - cardNumber * 15);
+		fIsCardPicked = true;
+
+		picked->fPrevCard->fNextCard = NULL;
+		picked->fPrevCard = NULL;
+
+		Invalidate();
 	}
 }
 
@@ -312,7 +310,7 @@ void SpiderView::MouseMoved(BPoint point,
 		return;
 	}
 
-	if (fIsCardPicked || fIsStackPicked) {
+	if (fIsCardPicked) {
 		fPickedCardPos = point;
 		Invalidate();
 	}
@@ -324,46 +322,23 @@ void SpiderView::MouseUp(BPoint point)
 	if (fIsCardPicked) {
 		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 
-		if (fBoard[stack][_FindFirstFree(stack)-1].fValue -
-			fPickedCard.fValue == 1 || _FindFirstFree(stack) == 0) {
-			fBoard[stack][_FindFirstFree(stack)] = fPickedCard;
-			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]-1].fRevealed =
-				true;
-
+		if(_FindLastUsed(stack) == NULL ||
+				_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1) {
+			// attach to stack
+			_AddCardToPile(stack, fPickedCard);
+			
+			// reveal last card from pile the cards were from
+			if(_FindLastUsed(fPickedCardBoardPos) != NULL)
+				_FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
+			
 			fPoints--;
 			fMoves++;
+		} else {
+			// reattach to old stack
+			_AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		}
-		else
-			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]] =
-				fPickedCard;
 
 		fIsCardPicked = false;
-
-		_CheckBoard();
-		Invalidate();
-	} else if (fIsStackPicked) {
-		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
-		if (fBoard[stack][_FindFirstFree(stack)-1].fValue -
-			fPickedCard.fValue == 1 || _FindFirstFree(stack) == 0) {
-			fBoard[stack][_FindFirstFree(stack)] = fPickedCard;
-			for (short i = 0; i != fLastPickedCardPos -
-				fPickedCardBoardPos[1] + 1; i++) {
-				fBoard[stack][_FindFirstFree(stack)] =
-					fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1] + i];
-				fBoard[fPickedCardBoardPos[0]]
-					[fPickedCardBoardPos[1] + i].fValue = -1;
-			}
-			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]-1].fRevealed =
-				true;
-
-			fPoints--;
-			fMoves++;
-		}
-		else
-			fBoard[fPickedCardBoardPos[0]][fPickedCardBoardPos[1]] =
-				fPickedCard;
-
-		fIsStackPicked = false;
 
 		_CheckBoard();
 		Invalidate();
@@ -386,15 +361,12 @@ void SpiderView::ChangeDifficulty(int difficulty)
 	default:
 	case 0:
 		fColors = 1;
-		fDecks = 8;
 		break;
 	case 1:
 		fColors = 2;
-		fDecks = 4;
 		break;
 	case 2:
 		fColors = 4;
-		fDecks = 2;
 	}
 
 	NewGame();
@@ -406,29 +378,33 @@ void SpiderView::Hint()
 	if (fIsHintShown != -1 || fDealing != -1)
 		return;
 
+	card* highestCard[10];
 	short stocksValues[10];
-	short highestCard[10];
 
 	for (short i = 0; i != 10; i++) {
-		stocksValues[i] = fBoard[i][_FindFirstFree(i) - 1].fValue;
-		highestCard[i] = _FindFirstFree(i) - 1;
+		highestCard[i] = _FindLastUsed(i);
+		if(highestCard[i] == NULL) {
+			stocksValues[i] = -1;
+			continue;
+		}
+		stocksValues[i] = highestCard[i]->fValue;
 
-		for (short j = _FindFirstFree(i) - 2;; j--) {
-			if (fBoard[i][j].fRevealed == false)
+		for (card* currentCard = highestCard[i]->fPrevCard;
+				currentCard != NULL; currentCard = currentCard->fPrevCard) {
+			if (currentCard->fRevealed == false || 
+					currentCard->fValue - stocksValues[i] != 1)
 				break;
 
-			if (fBoard[i][j].fValue - stocksValues[i] == 1) {
-				stocksValues[i] = fBoard[i][j].fValue;
-				highestCard[i] = j;
-			} else
-				break;
+			highestCard[i] = currentCard;
+			stocksValues[i] = currentCard->fValue;
 		}
 	}
 
+	// TODO: not random
 	short i = 600;
 	short x = rand() % 10;
 	short y = rand() % 10;
-	while (fBoard[y][_FindFirstFree(y) - 1].fValue - stocksValues[x] != 1) {
+	while (_FindLastUsed(y) != NULL && _FindLastUsed(y)->fValue - stocksValues[x] != 1) {
 		x = rand() % 10;
 		y = rand() % 10;
 		if (--i == 0) {
@@ -438,15 +414,14 @@ void SpiderView::Hint()
 	}
 
 	fIsHintShown = 10;
-	fHints[0] = &fBoard[x][highestCard[x]];
-	fHints[1] = &fBoard[y][_FindFirstFree(y) - 1];
+	fHints[0] = highestCard[x];
+	fHints[1] = _FindLastUsed(y);
 
 	fHints[0]->fEffect = E_GREEN;
-	fHintBoardPos[0] = x;
-	fHintBoardPos[1] = highestCard[x];
 
-	for (int i = fHintBoardPos[1]; i != _FindFirstFree(x); i++)
-		fBoard[x][i].fEffect = E_GREEN;
+	for (card* currentCard = fHints[0];
+			currentCard != NULL; currentCard = currentCard->fNextCard)
+		currentCard->fEffect = E_GREEN;
 
 	fHints[1]->fEffect = E_RED;
 
@@ -489,11 +464,11 @@ void SpiderView::_LoadBitmaps()
 	};
 	// load images
 	BString filename;
-	for (short i = 0; i != 14; i++) {
+	for (short i = 0; i < CARDS_IN_SUIT; i++) {
 		for(short j = 0; j < 4; j++) {
 			filename = "";
 			filename << "Artwork/" << i + 1 << "_" << suits[j] << ".png";
-			fCards[j][i] = BTranslationUtils::GetBitmap('rGFX', filename);
+			fCards[j*CARDS_IN_SUIT+i] = BTranslationUtils::GetBitmap('rGFX', filename);
 		}
 	}
 	fBack = BTranslationUtils::GetBitmap('rGFX', "Artwork/back.png");
@@ -508,11 +483,68 @@ void SpiderView::_LoadBitmaps()
 }
 
 
+card* SpiderView::_PickRandomCard()
+{
+	for(short i = 0; i < CARDS_IN_PLAY; i++) {
+		if(fAllCards[i]->fInPlay == false) { // if card not in play
+			fAllCards[i]->fInPlay = true; // move card into play
+			return fAllCards[i]; // return that card
+		}
+	}
+	printf("Error: ran out of cards to deal!\n");
+	return NULL; // no card found
+}
+
+
+void SpiderView::_AddCardToPile(int pile, card* cardToAdd) {
+	if(fBoard[pile] == NULL) {
+		fBoard[pile] = cardToAdd;
+	} else {
+		cardToAdd->fPrevCard = _FindLastUsed(pile);
+		cardToAdd->fPrevCard->fNextCard = cardToAdd;
+	}
+}
+
+
+void SpiderView::_RemoveCardFromPile(int pile, card* cardToRemove) {
+	if(fBoard[pile] == cardToRemove) { // first in pile
+		fBoard[pile] = NULL;
+	} else { // second or later in pile
+		cardToRemove->fPrevCard->fNextCard = NULL;
+		cardToRemove->fPrevCard = NULL;
+	}
+}
+
+
 void SpiderView::_GenerateBoard()
 {
-	for (short i = 0; i != 13; i++)
-		for (short j = 0; j != 4; j++)
-			fFreeCards[j][i] = fDecks;
+	srand(time(NULL));
+	
+	// create cards
+	card* orderedCards[CARDS_IN_PLAY];
+	for (short i = 0; i < CARDS_IN_PLAY; i++) {
+		orderedCards[i] = new card();
+		orderedCards[i]->fValue = i % CARDS_IN_SUIT; // A->K, repeat
+		orderedCards[i]->fColor = (i/CARDS_IN_SUIT) % fColors;
+		orderedCards[i]->fRevealed = false;
+		orderedCards[i]->fEffect = E_NONE;
+		orderedCards[i]->fInPlay = false;
+		orderedCards[i]->fNextCard = NULL;
+		orderedCards[i]->fPrevCard = NULL;
+	}
+	
+	// randomize order of card array
+	for(short cardsLeft = CARDS_IN_PLAY; cardsLeft > 0; cardsLeft--) {
+		// random number between 0 and (52, 51, 50, ...)
+		short randomCard = rand() % cardsLeft;
+		
+		// move card to actual deck
+		if(fAllCards[cardsLeft-1] != NULL) delete fAllCards[cardsLeft-1];
+		fAllCards[cardsLeft-1] = orderedCards[randomCard];
+		
+		// replace picked card with card at back of deck
+		orderedCards[randomCard] = orderedCards[cardsLeft-1];
+	}
 
 	fStock = 4;
 	fDealing = -1;
@@ -520,7 +552,6 @@ void SpiderView::_GenerateBoard()
 	fStackingCard = -1;
 	fStacked = 0;
 	fIsCardPicked = false;
-	fIsStackPicked = false;
 	fIsHintShown = -1;
 	fNoMoves = -1;
 	fMouseLock = false;
@@ -528,50 +559,24 @@ void SpiderView::_GenerateBoard()
 	fPoints = 200;
 	fMoves = 0;
 
-	for (short i = 0; i != 10; i++)
-		for (short j = 0; j != 25; j++) {
-			fBoard[i][j].fValue = -1;
-			fBoard[i][j].fColor = 0;
-			fBoard[i][j].fRevealed = false;
-			fBoard[i][j].fEffect = E_NONE;
+	for (short i = 0; i != 10; i++) {
+		fBoard[i] = NULL; // clear
+		short j = 6; // usually 6 cards
+		if(i < 4) j = 7; // if first 4 piles, 5 cards
+		for(; j > 0; j--) { // for each card
+			// pick a random next card, and add it
+			_AddCardToPile(i, _PickRandomCard());
 		}
-
-	srand(time(NULL));
-
-	for (short i = 0; i != 6; i++)
-		for (short j = 0; j != 10; j++) {			
-			short random = rand() % 13;
-			short rcolor = rand() % fColors;
-			while (fFreeCards[rcolor][random] == 0) {
-				rcolor = rand() % fColors;
-				random = rand() % 13;
-			}
-
-			fBoard[j][i].fColor = rcolor;
-			fBoard[j][i].fValue = random;
-			fFreeCards[rcolor][random]--;
+		// at the last card, show it
+		card* lastCard = _FindLastUsed(i);
+		lastCard->fRevealed = true;
+		lastCard->fEffect = E_HIDDEN;
+		if(i == 0) { // if the first pile
+			// start showing animation
+			lastCard->fEffect = E_ALPHA75;
+			fDealing = 0;
 		}
-
-	for (short i = 0; i != 4; i++) {
-		short random = rand() % 13;
-		short rcolor = rand() % fColors;
-		while (fFreeCards[rcolor][random] == 0) {
-			rcolor = rand() % fColors;
-			random = rand() % 13;
-		}
-
-		fBoard[i][6].fColor = rcolor;
-		fBoard[i][6].fValue = random;
-		fFreeCards[rcolor][random]--;
 	}
-
-	for (short i = 0; i != 10; i++) {			
-		fBoard[i][_FindFirstFree(i)-1].fRevealed = true;
-		fBoard[i][_FindFirstFree(i)-1].fEffect = E_HIDDEN;
-	}
-
-	fBoard[0][_FindFirstFree(0)-1].fEffect = E_ALPHA75;
-	fDealing = 0;
 
 	fShuffle->StartPlaying();
 }
@@ -582,28 +587,32 @@ void SpiderView::_CheckBoard()
 	for (short i = 0; i != 10; i++) {
 		short needed = 0;
 		bool stacked = true;
-		short last = _FindFirstFree(i) - 1;
-		short color = fBoard[i][last].fColor;
+		card* currentCard = _FindLastUsed(i);
+		if(currentCard == NULL)
+			continue;
+		short color = currentCard->fColor;
 
-		while (stacked) {
-			if (fBoard[i][last - needed].fValue == needed
-				&& fBoard[i][last - needed].fColor == color)
+		while(stacked) {
+			if(currentCard != NULL
+				&& currentCard->fValue == needed
+				&& currentCard->fColor == color) {
 				needed++;
-			else
+				currentCard = currentCard->fPrevCard;
+			} else
 				stacked = false;
 		}
 
-		if (needed == 13)
+		if (needed == CARDS_IN_SUIT)
 			stacked = true;
 
 		if (stacked) {
-			short first = _FindFirstFree(i);
-			fStackedColor[fStacked] = fBoard[i][first].fColor;
+			card* first = _FindLastUsed(i);
+			fStackedColor[fStacked] = first->fColor;
 			fStacking = i;
 			fStackingCard = 1;
 			fStacked++;
 
-			fBoard[i][first-1].fEffect = E_ALPHA25;
+			first->fEffect = E_ALPHA25;
 
 			fPoints += 100;
 
@@ -619,9 +628,12 @@ void SpiderView::_CheckBoard()
 }
 
 
-short SpiderView::_FindFirstFree(short stock) {
-	short res = 0;
-	while (fBoard[stock][res].fValue != -1) res++;
+card* SpiderView::_FindLastUsed(short stock) {
+	card* currentCard = fBoard[stock];
+	if(currentCard == NULL)
+		return NULL;
+	while(currentCard->fNextCard != NULL)
+		currentCard = currentCard->fNextCard;
 
-	return res;
+	return currentCard;
 }

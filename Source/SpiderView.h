@@ -17,6 +17,11 @@
 
 #define CARD_WIDTH 80
 #define CARD_HEIGHT 116
+#define CARDS_IN_DECK 52
+#define CARDS_IN_PLAY CARDS_IN_DECK*2
+#define CARDS_IN_SUIT 13
+#define CARD_IMAGE_BACK 52
+#define CARD_IMAGE_EMPTY 53
 
 
 enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
@@ -28,6 +33,9 @@ typedef struct card {
 	short fColor;
 	bool fRevealed;
 	short fEffect;
+	bool fInPlay;
+	card* fNextCard;
+	card* fPrevCard;
 } card;
 
 
@@ -51,9 +59,12 @@ private:
 	void _LoadBitmaps();
 	void _GenerateBoard();
 	void _CheckBoard();
-	short _FindFirstFree(short stock);
+	card* _FindLastUsed(short stock);
+	card* _PickRandomCard();
+	void _AddCardToPile(int pile, card* cardToAdd);
+	void _RemoveCardFromPile(int pile, card* cardToRemove);
 
-	BBitmap* fCards[4][13];
+	BBitmap* fCards[CARDS_IN_DECK];
 	BBitmap* fBack;
 	BBitmap* fEmpty;
 
@@ -61,28 +72,25 @@ private:
 	BSimpleGameSound* fShuffle;
 	BSimpleGameSound* fFanfare;
 
-	card fBoard[10][25];
-	short fStock;
-	short fDealing;
-	short fStacking;
-	short fStackingCard;
-	short fFreeCards[4][13];
+	card* fBoard[10]; // first card in each pile
+	short fStock; // number of stocks left
+	short fDealing; // the card that will become opaque next, -1 if none
+	short fStacking; // the pile that is stacking, -1 if none
+	short fStackingCard; // the card in the pile that will stack next, -1 if none
+	card* fAllCards[CARDS_IN_PLAY]; // all cards
 
-	int fColors;
-	int fDecks;
+	int fColors; // difficulty
 
-	short fPickedCardBoardPos[2];
+	short fPickedCardBoardPos; // pile picked card is from
 	BPoint fPickedCardPos;
 	BPoint fPickedCardMouse;
-	card fPickedCard;
+	card* fPickedCard;
 	bool fIsCardPicked;
-	bool fIsStackPicked;
 	short fLastPickedCardPos;
 	bool fMouseLock;
 
 	short fIsHintShown;
 	card* fHints[2];
-	short fHintBoardPos[2];
 	short fNoMoves;
 
 	short fStacked;
