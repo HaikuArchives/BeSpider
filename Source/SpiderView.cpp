@@ -469,7 +469,7 @@ BSimpleGameSound* SpiderView::_LoadSound(const char* resourceName)
 	gs_audio_format format;
 	format.frame_rate = 44100;
 	format.channel_count = 2; // stereo
-	format.format = 0x11;
+	format.format = 0x02;
 	format.byte_order = 0;
 	format.buffer_size = 0; // auto
 	
