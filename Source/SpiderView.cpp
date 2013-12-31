@@ -37,6 +37,8 @@ SpiderView::SpiderView()
 
 void SpiderView::Draw(BRect rect)
 {
+	//clock_t start, end;
+	//start = clock();
 	SetDrawingMode(B_OP_ALPHA);
 	
 	for(short i = 0; i < 10; i++) {
@@ -49,7 +51,16 @@ void SpiderView::Draw(BRect rect)
 			for(currentCard = fBoard[i]; currentCard != NULL;
 					currentCard = currentCard->fNextCard) {
 				if(currentCard->fRevealed == false) {
-					DrawBitmap(fBack, rect);
+					short numberOfBacks = 0; // 1 back
+					while(currentCard->fNextCard != NULL &&
+							currentCard->fNextCard->fRevealed == false &&
+							numberOfBacks < CACHED_BACKS) {
+						currentCard = currentCard->fNextCard;
+						numberOfBacks++;
+					}
+					rect.bottom += numberOfBacks*15;
+					DrawBitmap(fBack[numberOfBacks], rect);
+					rect.top += 15*numberOfBacks;
 				} else if(currentCard->fEffect != E_HIDDEN) {
 					DrawBitmap(
 						fCards[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue],
@@ -86,7 +97,7 @@ void SpiderView::Draw(BRect rect)
 			390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
 
 	for (short i = 0; i != fStock; i++)
-		DrawBitmap(fBack, BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT,
+		DrawBitmap(fBack[0], BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT,
 			900 - i*15, 390));
 
 	if (fIsCardPicked) {
@@ -137,6 +148,10 @@ void SpiderView::Draw(BRect rect)
 			BPoint(455 - bigFont.StringWidth("there are no constructive moves!")
 			/ 2, 315));
 	}
+	
+	//end = clock();
+	//clock_t diff = end - start;
+	//printf("Time: %.6f\n", diff / (double)CLOCKS_PER_SEC);
 }
 
 
@@ -216,7 +231,8 @@ void SpiderView::Pulse()
 		Invalidate();
 	} else if (fNoMoves > -1) {
 		fNoMoves--;
-		Invalidate();
+		if(fNoMoves == -1)
+			Invalidate();
 	}
 }
 
@@ -483,13 +499,32 @@ void SpiderView::_LoadBitmaps()
 			fCards[j*CARDS_IN_SUIT+i] = BTranslationUtils::GetBitmap('rGFX', filename);
 		}
 	}
-	fBack = BTranslationUtils::GetBitmap('rGFX', "Artwork/back.png");
+	fBack[0] = BTranslationUtils::GetBitmap('rGFX', "Artwork/back.png");
 	fEmpty = BTranslationUtils::GetBitmap('rGFX', "Artwork/empty.png");
 
 	// load audio
 	fResources = be_app->AppResources();
 	fShuffle = _LoadSound("Artwork/shuffle.wav");
 	fFanfare = _LoadSound("Artwork/fanfare.wav");
+	
+	// cache multiple backs in a row
+	for(short i = 1; i < CACHED_BACKS; i++) {
+		fBack[i] = new BBitmap(BRect(0, 0, CARD_WIDTH, CARD_HEIGHT + i*15),
+			fBack[0]->ColorSpace(), true);
+		BView* fBackView = new BView(fBack[i]->Bounds(), NULL, 0, 0);
+		BRect destRect = fBack[0]->Bounds();
+		fBack[i]->AddChild(fBackView);
+		fBack[i]->Lock();
+		
+		fBackView->SetDrawingMode(B_OP_ALPHA);
+		for(short j = 0; j < i+1; j++) {
+			destRect.top = j*15;
+			destRect.bottom = destRect.top + CARD_HEIGHT;
+			fBackView->DrawBitmap(fBack[0], destRect);
+		}
+		fBackView->Sync();
+		fBack[i]->Unlock();
+	}
 
 	Invalidate();
 }

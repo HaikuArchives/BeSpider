@@ -1,11 +1,3 @@
-* optimize SpiderView::Draw() function
-
-* occassionally moving cards behaves unexpectedly
-	Inter alia, sometimes card disappears and after placing a card on a stack
-	it reappears at the end of it.
-
-* extend maximum size of stack (now 25 cards)
-
 * draw an icon
 
 * make appearance of the game more appealing

@@ -22,6 +22,7 @@
 #define CARDS_IN_SUIT 13
 #define CARD_IMAGE_BACK 52
 #define CARD_IMAGE_EMPTY 53
+#define CACHED_BACKS 6
 
 
 enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
@@ -65,7 +66,7 @@ private:
 	void _RemoveCardFromPile(int pile, card* cardToRemove);
 
 	BBitmap* fCards[CARDS_IN_DECK];
-	BBitmap* fBack;
+	BBitmap* fBack[CACHED_BACKS];
 	BBitmap* fEmpty;
 
 	BResources* fResources;
