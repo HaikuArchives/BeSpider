@@ -342,8 +342,8 @@ void SpiderView::MouseUp(BPoint point)
 	if (fIsCardPicked) {
 		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 
-		if(_FindLastUsed(stack) == NULL ||
-				_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1) {
+		if(stack >= 0 && stack < 10 && (_FindLastUsed(stack) == NULL ||
+				_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
 			// attach to stack
 			_AddCardToPile(stack, fPickedCard);
 			
