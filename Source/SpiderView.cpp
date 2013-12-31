@@ -514,12 +514,19 @@ void SpiderView::_LoadBitmaps()
 	
 	// cache multiple backs in a row
 	for(short i = 1; i < CACHED_BACKS; i++) {
-		fBack[i] = new BBitmap(BRect(0, 0, CARD_WIDTH, CARD_HEIGHT + i*15),
+		fBack[i] = new BBitmap(BRect(0, 0, CARD_WIDTH-1, CARD_HEIGHT + i*15),
 			fBack[0]->ColorSpace(), true);
+		
 		BView* fBackView = new BView(fBack[i]->Bounds(), NULL, 0, 0);
 		BRect destRect = fBack[0]->Bounds();
 		fBack[i]->AddChild(fBackView);
 		fBack[i]->Lock();
+		
+		fBackView->SetDrawingMode(B_OP_COPY);
+		fBackView->DrawBitmap(fBack[0], destRect);
+		destRect.top = i*15;
+		destRect.bottom = destRect.top + CARD_HEIGHT;
+		fBackView->DrawBitmap(fBack[0], destRect);
 		
 		fBackView->SetDrawingMode(B_OP_ALPHA);
 		for(short j = 0; j < i+1; j++) {
