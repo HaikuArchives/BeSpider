@@ -91,6 +91,7 @@ private:
 
 	short fIsHintShown;
 	card* fHints[2];
+	short fHintStatus[2];
 	short fNoMoves;
 
 	short fStacked;

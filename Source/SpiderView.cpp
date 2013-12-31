@@ -258,7 +258,6 @@ void SpiderView::MouseDown(BPoint point)
 	short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
 	if (stack <= 9) {
 		// find clicked on card
-		// TODO: use mod
 		int cardNumber = 1;
 		card* picked = fBoard[stack];
 		while(picked->fNextCard != NULL) {
@@ -400,30 +399,43 @@ void SpiderView::Hint()
 		}
 	}
 
-	// TODO: not random
-	short i = 600;
-	short x = rand() % 10;
-	short y = rand() % 10;
-	while (_FindLastUsed(y) != NULL && _FindLastUsed(y)->fValue - stocksValues[x] != 1) {
-		x = rand() % 10;
-		y = rand() % 10;
-		if (--i == 0) {
-			fNoMoves = 25;
-			return;
+	
+	short status = 0;
+	short x = fHintStatus[0];
+	short y = fHintStatus[1]+1;
+	
+	for(;; x = (x+1) % 10) {
+		for(; y < 10; y++) {
+			if(_FindLastUsed(y) == NULL ||
+					_FindLastUsed(y)->fValue - stocksValues[x] == 1) {
+				status = 1; // found a match
+				break;
+			}
+			if(x == fHintStatus[0] && y == fHintStatus[1]) {
+				status = 2; // didn't find a match
+				break;
+			}
 		}
+		if(status != 0) break;
+		y = 0;
 	}
+	
+	fHintStatus[0] = x;
+	fHintStatus[1] = y;
+	
+	if(status == 1) {
+		fIsHintShown = 10;
+		fHints[0] = highestCard[x];
+		fHints[1] = _FindLastUsed(y);
 
-	fIsHintShown = 10;
-	fHints[0] = highestCard[x];
-	fHints[1] = _FindLastUsed(y);
+		for (card* currentCard = fHints[0];
+				currentCard != NULL; currentCard = currentCard->fNextCard)
+			currentCard->fEffect = E_GREEN;
 
-	fHints[0]->fEffect = E_GREEN;
-
-	for (card* currentCard = fHints[0];
-			currentCard != NULL; currentCard = currentCard->fNextCard)
-		currentCard->fEffect = E_GREEN;
-
-	fHints[1]->fEffect = E_RED;
+		fHints[1]->fEffect = E_RED;
+	} else {
+		fNoMoves = 25;
+	}
 
 	Invalidate();
 }
@@ -456,7 +468,7 @@ BSimpleGameSound* SpiderView::_LoadSound(const char* resourceName)
 
 void SpiderView::_LoadBitmaps()
 {
-	char* suits[] = {
+	BString suits[] = {
 		"spade",
 		"heart",
 		"club",
@@ -555,6 +567,8 @@ void SpiderView::_GenerateBoard()
 	fIsHintShown = -1;
 	fNoMoves = -1;
 	fMouseLock = false;
+	fHintStatus[0] = 0;
+	fHintStatus[1] = 0;
 
 	fPoints = 200;
 	fMoves = 0;
