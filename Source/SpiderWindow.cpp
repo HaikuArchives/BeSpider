@@ -25,7 +25,7 @@ SpiderWindow::SpiderWindow(BRect frame, const char* title)
 	fView = new SpiderView();
 	fDiffSet = new BInvoker(new BMessage(kDiffChosenMessage), this);
 	
-	SetPulseRate(50000);
+	SetPulseRate(500000);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 		.Add(_CreateMenuBar())

@@ -46,6 +46,7 @@ class SpiderView : public BView {
 public:
 	SpiderView();
 
+	virtual void AllAttached();
 	virtual void Draw(BRect rect);
 	virtual void Pulse();
 	virtual void MouseDown(BPoint point);

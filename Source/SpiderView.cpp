@@ -35,7 +35,11 @@ SpiderView::SpiderView()
 	
 	for(short i = 0; i < CARDS_IN_PLAY; i++)
 		fAllCards[i] = NULL;
+}
 
+
+void SpiderView::AllAttached()
+{
 	_GenerateBoard();
 }
 
@@ -165,6 +169,7 @@ void SpiderView::Pulse()
 {
 	if (fDealing > 9) {
 		fDealing = -1;
+		Window()->SetPulseRate(500000);
 		_CheckBoard();
 	}
 
@@ -223,6 +228,7 @@ void SpiderView::Pulse()
 					B_TRANSLATE_CONTEXT("OK!", "Win alert")))->Go();
 
 			fStacking = -1;
+			Window()->SetPulseRate(500000);
 		}
 	} else if (fIsHintShown > 0)
 		fIsHintShown--;
@@ -270,6 +276,7 @@ void SpiderView::MouseDown(BPoint point)
 				// start appearing animation
 				randomCard->fEffect = E_ALPHA75;
 				fDealing = 0;
+				Window()->SetPulseRate(50000);
 			}
 		}
 
@@ -448,7 +455,7 @@ void SpiderView::Hint()
 	fHintStatus[1] = y;
 	
 	if(status == 1) {
-		fIsHintShown = 10;
+		fIsHintShown = 2;
 		fHints[0] = highestCard[x];
 		fHints[1] = _FindLastUsed(y);
 
@@ -458,7 +465,7 @@ void SpiderView::Hint()
 
 		fHints[1]->fEffect = E_RED;
 	} else {
-		fNoMoves = 25;
+		fNoMoves = 4;
 	}
 
 	Invalidate();
@@ -639,6 +646,7 @@ void SpiderView::_GenerateBoard()
 			// start showing animation
 			lastCard->fEffect = E_ALPHA75;
 			fDealing = 0;
+			Window()->SetPulseRate(50000);
 		}
 	}
 
@@ -677,6 +685,7 @@ void SpiderView::_CheckBoard()
 			fStacked++;
 
 			first->fEffect = E_ALPHA25;
+			Window()->SetPulseRate(50000);
 
 			fPoints += 100;
 
