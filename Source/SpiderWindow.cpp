@@ -56,6 +56,13 @@ void SpiderWindow::MessageReceived(BMessage* message)
 	case kHintMessage:
 		fView->Hint();
 		break;
+	case 'DATA':
+		if(message->WasDropped()) {
+			fView->MouseUp(message->DropPoint());
+		} else {
+			BWindow::MessageReceived(message);
+		}
+		break;
 	default:
 		BWindow::MessageReceived(message);
 	}

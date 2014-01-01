@@ -109,19 +109,6 @@ void SpiderView::Draw(BRect rect)
 		DrawBitmap(fBack[0], BRect(WINDOW_WIDTH - CARD_WIDTH - i*15,
 			WINDOW_HEIGHT - CARD_HEIGHT, WINDOW_WIDTH - i*15, WINDOW_HEIGHT));
 
-	if (fIsCardPicked) {
-		card* currentCard = fPickedCard;
-		for(short i = 0; currentCard != NULL; i++) {
-			DrawBitmap(fCards[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue],
-				BRect(fPickedCardPos.x - fPickedCardMouse.x,
-				fPickedCardPos.y + i * 15 - fPickedCardMouse.y,
-				fPickedCardPos.x + CARD_WIDTH - fPickedCardMouse.x,
-				fPickedCardPos.y + CARD_HEIGHT + i * 15 - fPickedCardMouse.y));
-			
-			currentCard = currentCard->fNextCard;
-		}
-	}
-
 	BString points = BString();
 	points << fPoints;
 	BString moves = BString();
@@ -310,8 +297,10 @@ void SpiderView::MouseDown(BPoint point)
 			return;
 		
 		card* currentCard = picked->fNextCard;
+		short pickedHeight = 1;
 		for(short i = 1; currentCard != NULL;
 				i++) {
+			pickedHeight++;
 			if(picked->fColor != currentCard->fColor ||
 					picked->fValue - currentCard->fValue != i)
 				return;
@@ -319,14 +308,50 @@ void SpiderView::MouseDown(BPoint point)
 		}
 		
 		fPickedCardBoardPos = stack;
-		fPickedCardPos = point;
 		fPickedCard = picked;
-		fPickedCardMouse = BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
-			 point.y - cardNumber * 15);
 		fIsCardPicked = true;
 
 		_RemoveCardFromPile(stack, picked);
 
+		BMessage msg(B_SIMPLE_DATA);
+		msg.AddPointer("view", this);
+		BBitmap* img;
+		if(pickedHeight == 1)
+			img = new BBitmap(fCards[picked->fColor*CARDS_IN_SUIT+picked->fValue]);
+		else {
+			img = new BBitmap(BRect(0, 0, CARD_WIDTH-1, CARD_HEIGHT + (pickedHeight-1) * 15), fBack[0]->ColorSpace(), true);
+			BView* imgView = new BView(img->Bounds(), NULL, 0, 0);
+			BRect destRect = fBack[0]->Bounds();
+			img->AddChild(imgView);
+			img->Lock();
+			currentCard = picked;
+			
+			imgView->SetDrawingMode(B_OP_COPY);
+			imgView->DrawBitmap(fCards
+				[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue],
+				destRect);
+			destRect.top = (pickedHeight-1)*15;
+			destRect.bottom = destRect.top + CARD_HEIGHT;
+			// we don't know the top card yet, so we'll overwrite this
+			imgView->DrawBitmap(fBack[0], destRect);
+			
+			imgView->SetDrawingMode(B_OP_ALPHA);
+			for(short j = 0; j < pickedHeight; j++) {
+				destRect.top = j*15;
+				destRect.bottom = destRect.top + CARD_HEIGHT;
+				imgView->DrawBitmap(fCards[currentCard->fColor*CARDS_IN_SUIT+currentCard->fValue], destRect);
+				currentCard = currentCard->fNextCard;
+			}
+			
+			imgView->Sync();
+			img->Unlock();
+			img->RemoveChild(imgView);
+			delete imgView;
+		}
+		DragMessage(&msg, img, B_OP_BLEND,
+			BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
+			point.y - cardNumber * 15));
+		
 		Invalidate();
 	}
 }
@@ -338,11 +363,6 @@ void SpiderView::MouseMoved(BPoint point,
 	if (transit == B_EXITED_VIEW) {
 		MouseUp(point);
 		return;
-	}
-
-	if (fIsCardPicked) {
-		fPickedCardPos = point;
-		Invalidate();
 	}
 }
 

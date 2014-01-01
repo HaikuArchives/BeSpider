@@ -86,11 +86,8 @@ private:
 	int fColors; // difficulty
 
 	short fPickedCardBoardPos; // pile picked card is from
-	BPoint fPickedCardPos;
-	BPoint fPickedCardMouse;
 	card* fPickedCard;
 	bool fIsCardPicked;
-	short fLastPickedCardPos;
 	bool fMouseLock;
 
 	short fIsHintShown;
