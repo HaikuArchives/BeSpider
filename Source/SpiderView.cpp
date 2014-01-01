@@ -218,6 +218,9 @@ void SpiderView::Pulse()
 				lastCard->fRevealed = true;
 				lastCard->fEffect = E_NONE;
 			}
+			if(fStacked == 8)
+				(new BAlert("WinAlert", B_TRANSLATE("YOU WON!"),
+					B_TRANSLATE_CONTEXT("OK!", "Win alert")))->Go();
 
 			fStacking = -1;
 		}
@@ -245,7 +248,7 @@ void SpiderView::Pulse()
 
 void SpiderView::MouseDown(BPoint point)
 {
-	if (fDealing != -1 || fIsHintShown != -1 || fMouseLock)
+	if (fDealing != -1 || fIsHintShown != -1 || fStacking != -1 || fMouseLock)
 		return;
 
 	fMouseLock = true;
@@ -278,7 +281,7 @@ void SpiderView::MouseDown(BPoint point)
 
 	// pick up a stack
 	short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
-	if (stack <= 9) {
+	if (stack <= 9 && fBoard[stack] != NULL) {
 		// find clicked on card
 		int cardNumber = 1;
 		card* picked = fBoard[stack];
@@ -681,8 +684,6 @@ void SpiderView::_CheckBoard()
 
 			if (fStacked == 8) {
 				fFanfare->StartPlaying();
-				(new BAlert("WinAlert", B_TRANSLATE("YOU WON!"),
-					B_TRANSLATE_CONTEXT("OK!", "Win alert")))->Go();
 			} else
 				fShuffle->StartPlaying();
 		}
