@@ -360,10 +360,10 @@ void SpiderView::MouseDown(BPoint point)
 void SpiderView::MouseMoved(BPoint point,
 	uint32 transit, const BMessage* message)
 {
-	if (transit == B_EXITED_VIEW) {
+	/*if (transit == B_EXITED_VIEW) {
 		MouseUp(point);
 		return;
-	}
+	}*/
 }
 
 
