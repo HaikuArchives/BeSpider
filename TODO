@@ -3,3 +3,6 @@
 * make appearance of the game more appealing
 
 * see if sound is actually working
+
+* see if cards should be in their own BView's
+	It may speed up dragging cards.

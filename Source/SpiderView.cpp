@@ -200,10 +200,10 @@ void SpiderView::Pulse()
 		case E_ALPHA75:
 			// start next animation (if next card not stacking,
 			//   it will be reset later)
-			lastCard->fPrevCard->fEffect = E_ALPHA25;
+			if(lastCard->fPrevCard != NULL)
+				lastCard->fPrevCard->fEffect = E_ALPHA25;
 			// detach current card
-			lastCard->fPrevCard->fNextCard = NULL;
-			lastCard->fPrevCard = NULL;
+			_RemoveCardFromPile(fStacking, lastCard);
 			// move to next card
 			fStackingCard++;
 			break;
@@ -314,8 +314,7 @@ void SpiderView::MouseDown(BPoint point)
 			 point.y - cardNumber * 15);
 		fIsCardPicked = true;
 
-		picked->fPrevCard->fNextCard = NULL;
-		picked->fPrevCard = NULL;
+		_RemoveCardFromPile(stack, picked);
 
 		Invalidate();
 	}
