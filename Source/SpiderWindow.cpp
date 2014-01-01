@@ -20,7 +20,7 @@
 SpiderWindow::SpiderWindow(BRect frame, const char* title)
 	:
 	BWindow(frame, title, B_DOCUMENT_WINDOW,
-	B_QUIT_ON_WINDOW_CLOSE | B_NOT_RESIZABLE)
+	B_QUIT_ON_WINDOW_CLOSE)
 {
 	fView = new SpiderView();
 	fDiffSet = new BInvoker(new BMessage(kDiffChosenMessage), this);
@@ -30,6 +30,12 @@ SpiderWindow::SpiderWindow(BRect frame, const char* title)
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 		.Add(_CreateMenuBar())
 		.Add(fView);
+}
+
+
+void SpiderWindow::FrameResized(float newWidth, float newHeight)
+{
+	fView->Resize(newWidth, newHeight);
 }
 
 

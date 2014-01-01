@@ -23,10 +23,13 @@
 
 SpiderView::SpiderView()
 	:
-	BView(BRect(0, 0, WINDOW_WIDTH+10, WINDOW_HEIGHT+10), "SpiderView",
-		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED)
+	BView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
+		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
 	SetViewColor(0, 85, 0);
+
+	windowWidth = STARTING_WINDOW_WIDTH;
+	windowHeight = STARTING_WINDOW_HEIGHT;
 
 	_LoadBitmaps();
 
@@ -35,6 +38,20 @@ SpiderView::SpiderView()
 	
 	for(short i = 0; i < CARDS_IN_PLAY; i++)
 		fAllCards[i] = NULL;
+}
+
+
+SpiderView::~SpiderView()
+{
+	delete fShuffle;
+	delete fFanfare;
+	delete fEmpty;
+	for(short i = 0; i < CACHED_BACKS; i++)
+		delete fBack[i];
+	for(short i = 0; i < CARDS_IN_DECK; i++)
+		delete fCards[i];
+	for(short i = 0; i < CARDS_IN_PLAY; i++)
+		delete fAllCards[i];
 }
 
 
@@ -50,9 +67,11 @@ void SpiderView::Draw(BRect rect)
 	//start = clock();
 	SetDrawingMode(B_OP_ALPHA);
 	
+	int hSpacing = _CardHSpacing();
+	
 	for(short i = 0; i < 10; i++) {
-		BRect rect(10 + i * (CARD_WIDTH + 10), 15,
-				10 + (i + 1) * CARD_WIDTH + i * 10, 15 + CARD_HEIGHT);
+		BRect rect(hSpacing + i * (CARD_WIDTH + hSpacing), 15,
+				hSpacing + (i + 1) * CARD_WIDTH + i * hSpacing, 15 + CARD_HEIGHT);
 		if(fBoard[i] == NULL)
 			DrawBitmap(fEmpty, rect);
 		else {
@@ -103,11 +122,11 @@ void SpiderView::Draw(BRect rect)
 	
 	for (short i = 0; i != fStacked; i++)
 		DrawBitmap(fCards[fStackedColor[i]*CARDS_IN_SUIT+CARDS_IN_SUIT-1],
-			BRect(i*15 + 10, WINDOW_HEIGHT - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, WINDOW_HEIGHT));
+			BRect(i*15 + 10, windowHeight - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, windowHeight));
 
 	for (short i = 0; i != fStock; i++)
-		DrawBitmap(fBack[0], BRect(WINDOW_WIDTH - CARD_WIDTH - i*15,
-			WINDOW_HEIGHT - CARD_HEIGHT, WINDOW_WIDTH - i*15, WINDOW_HEIGHT));
+		DrawBitmap(fBack[0], BRect(windowWidth - CARD_WIDTH - i*15,
+			windowHeight - CARD_HEIGHT, windowWidth - i*15, windowHeight));
 
 	BString points = BString();
 	points << fPoints;
@@ -124,26 +143,26 @@ void SpiderView::Draw(BRect rect)
 	SetHighColor(255,255,255);
 
 	SetFont(&bigFont);
-	DrawString(points, BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(points)) / 2, WINDOW_HEIGHT-50));
+	DrawString(points, BPoint((windowWidth+10 - bigFont.StringWidth(points)) / 2, windowHeight-50));
 
 	SetFont(&smallFont);
-	DrawString(B_TRANSLATE("points"), BPoint((WINDOW_WIDTH+10
-		- smallFont.StringWidth(B_TRANSLATE("points"))) / 2, WINDOW_HEIGHT-35));
+	DrawString(B_TRANSLATE("points"), BPoint((windowWidth+10
+		- smallFont.StringWidth(B_TRANSLATE("points"))) / 2, windowHeight-35));
 
 	SetFont(&bigFont);
-	DrawString(moves, BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(points)) / 2, WINDOW_HEIGHT-15));
+	DrawString(moves, BPoint((windowWidth+10 - bigFont.StringWidth(points)) / 2, windowHeight-15));
 
 	SetFont(&smallFont);
-	DrawString(B_TRANSLATE("moves"), BPoint((WINDOW_WIDTH+10
-		- smallFont.StringWidth(B_TRANSLATE("moves"))) / 2, WINDOW_HEIGHT));
+	DrawString(B_TRANSLATE("moves"), BPoint((windowWidth+10
+		- smallFont.StringWidth(B_TRANSLATE("moves"))) / 2, windowHeight));
 
 	if (fNoMoves > -1) {
 		SetFont(&bigFont);
 		SetHighColor(255, 0, 0);
 
 		DrawString(B_TRANSLATE("there are no constructive moves!"),
-			BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(
-			B_TRANSLATE("there are no constructive moves!"))) / 2, WINDOW_HEIGHT-75));
+			BPoint((windowWidth+10 - bigFont.StringWidth(
+			B_TRANSLATE("there are no constructive moves!"))) / 2, windowHeight-75));
 	}
 	
 	//end = clock();
@@ -239,6 +258,14 @@ void SpiderView::Pulse()
 }
 
 
+void SpiderView::Resize(float newWidth, float newHeight)
+{
+	ResizeTo(newWidth, newHeight-20);
+	windowWidth = (int)newWidth - 20;
+	windowHeight = (int)newHeight - 30;
+}
+
+
 void SpiderView::MouseDown(BPoint point)
 {
 	if (fDealing != -1 || fIsHintShown != -1 || fStacking != -1 || fMouseLock)
@@ -246,9 +273,11 @@ void SpiderView::MouseDown(BPoint point)
 
 	fMouseLock = true;
 
+	int hSpacing = _CardHSpacing();
+
 	// use a stock
-	if (point.x > (WINDOW_WIDTH - CARD_WIDTH - fStock * 15) && point.x < WINDOW_WIDTH
-		&& point.y > WINDOW_HEIGHT - CARD_HEIGHT && point.y < WINDOW_HEIGHT) {
+	if (point.x > (windowWidth - CARD_WIDTH - fStock * 15) && point.x < windowWidth
+		&& point.y > windowHeight - CARD_HEIGHT && point.y < windowHeight) {
 		if (fStock == 0) return;
 		for (short i = 0; i != 10; i++) {
 			// add a random card to the pile
@@ -274,7 +303,7 @@ void SpiderView::MouseDown(BPoint point)
 	}
 
 	// pick up a stack
-	short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
+	short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
 	if (stack <= 9 && fBoard[stack] != NULL) {
 		// find clicked on card
 		int cardNumber = 1;
@@ -349,7 +378,7 @@ void SpiderView::MouseDown(BPoint point)
 			delete imgView;
 		}
 		DragMessage(&msg, img, B_OP_BLEND,
-			BPoint((int)(point.x - 10) % (CARD_WIDTH + 10),
+			BPoint((int)(point.x - hSpacing) % (CARD_WIDTH + hSpacing),
 			point.y - cardNumber * 15));
 		
 		Invalidate();
@@ -370,7 +399,8 @@ void SpiderView::MouseMoved(BPoint point,
 void SpiderView::MouseUp(BPoint point)
 {
 	if (fIsCardPicked) {
-		short stack = (int)((point.x - 10) / (CARD_WIDTH + 10));
+		int hSpacing = _CardHSpacing();
+		short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
 
 		if(stack >= 0 && stack < 10 && (_FindLastUsed(stack) == NULL ||
 				_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
@@ -402,6 +432,12 @@ void SpiderView::NewGame()
 {
 	_GenerateBoard();
 	Invalidate();
+}
+
+
+int SpiderView::_CardHSpacing()
+{
+	return((windowWidth - (CARD_WIDTH*10)) / 11);
 }
 
 

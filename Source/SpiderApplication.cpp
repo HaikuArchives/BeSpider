@@ -18,7 +18,7 @@ SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SpiderWindow(BRect(150, 150, 150+WINDOW_WIDTH+20, 150+WINDOW_HEIGHT+30), "BeSpider");
+	fWindow = new SpiderWindow(BRect(150, 150, 150+STARTING_WINDOW_WIDTH+20, 150+STARTING_WINDOW_HEIGHT+30), "BeSpider");
 
 	fWindow->Lock();
 	fWindow->Show();

@@ -22,6 +22,7 @@ public:
 	SpiderWindow(BRect frame, const char* title);
 
 	virtual void MessageReceived(BMessage* message);
+	virtual void FrameResized(float newWidth, float newHeight);
 
 private:
 	BMenuBar* _CreateMenuBar();

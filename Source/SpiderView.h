@@ -15,6 +15,8 @@
 #include <SimpleGameSound.h>
 #include <View.h>
 
+#define STARTING_WINDOW_WIDTH 900
+#define STARTING_WINDOW_HEIGHT 490
 #define CARD_WIDTH 80
 #define CARD_HEIGHT 116
 #define CARDS_IN_DECK 52
@@ -23,8 +25,6 @@
 #define CARD_IMAGE_BACK 52
 #define CARD_IMAGE_EMPTY 53
 #define CACHED_BACKS 6
-#define WINDOW_WIDTH 900
-#define WINDOW_HEIGHT 490
 
 
 enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
@@ -45,6 +45,7 @@ typedef struct card {
 class SpiderView : public BView {
 public:
 	SpiderView();
+	~SpiderView();
 
 	virtual void AllAttached();
 	virtual void Draw(BRect rect);
@@ -57,12 +58,14 @@ public:
 	void NewGame();
 	void ChangeDifficulty(int difficulty);
 	void Hint();
+	void Resize(float newWidth, float newHeight);
 
 private:
 	BSimpleGameSound* _LoadSound(const char* resourceName);
 	void _LoadBitmaps();
 	void _GenerateBoard();
 	void _CheckBoard();
+	int _CardHSpacing();
 	card* _FindLastUsed(short stock);
 	card* _PickRandomCard();
 	void _AddCardToPile(int pile, card* cardToAdd);
@@ -75,6 +78,9 @@ private:
 	BResources* fResources;
 	BSimpleGameSound* fShuffle;
 	BSimpleGameSound* fFanfare;
+
+	int windowWidth;
+	int windowHeight;
 
 	card* fBoard[10]; // first card in each pile
 	short fStock; // number of stocks left
