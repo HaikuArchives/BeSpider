@@ -3,7 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "SpiderApplication.h"
-
+#include "SpiderView.h"
 #include "SpiderWindow.h"
 
 #include <Alert.h>
@@ -18,7 +18,7 @@ SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SpiderWindow(BRect(150, 150, 1060, 575), "BeSpider");
+	fWindow = new SpiderWindow(BRect(150, 150, 150+WINDOW_WIDTH+20, 150+WINDOW_HEIGHT+30), "BeSpider");
 
 	fWindow->Lock();
 	fWindow->Show();

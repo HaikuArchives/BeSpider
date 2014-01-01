@@ -23,8 +23,8 @@
 
 SpiderView::SpiderView()
 	:
-	BView(BRect(0, 0, 910, 400), "SpiderView", B_FOLLOW_LEFT | B_FOLLOW_TOP,
-	B_WILL_DRAW | B_PULSE_NEEDED)
+	BView(BRect(0, 0, WINDOW_WIDTH+10, WINDOW_HEIGHT+10), "SpiderView",
+		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED)
 {
 	SetViewColor(0, 85, 0);
 
@@ -98,12 +98,12 @@ void SpiderView::Draw(BRect rect)
 	}
 	
 	for (short i = 0; i != fStacked; i++)
-		DrawBitmap(fCards[fStackedColor[i]*CARDS_IN_SUIT+CARDS_IN_SUIT-1], BRect(i*15 + 10,
-			390 - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, 390));
+		DrawBitmap(fCards[fStackedColor[i]*CARDS_IN_SUIT+CARDS_IN_SUIT-1],
+			BRect(i*15 + 10, WINDOW_HEIGHT - CARD_HEIGHT, i*15 + 10 + CARD_WIDTH, WINDOW_HEIGHT));
 
 	for (short i = 0; i != fStock; i++)
-		DrawBitmap(fBack[0], BRect(900 - CARD_WIDTH - i*15, 390 - CARD_HEIGHT,
-			900 - i*15, 390));
+		DrawBitmap(fBack[0], BRect(WINDOW_WIDTH - CARD_WIDTH - i*15,
+			WINDOW_HEIGHT - CARD_HEIGHT, WINDOW_WIDTH - i*15, WINDOW_HEIGHT));
 
 	if (fIsCardPicked) {
 		card* currentCard = fPickedCard;
@@ -133,25 +133,26 @@ void SpiderView::Draw(BRect rect)
 	SetHighColor(255,255,255);
 
 	SetFont(&bigFont);
-	DrawString(points, BPoint(455 - bigFont.StringWidth(points) / 2, 340));
+	DrawString(points, BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(points)) / 2, WINDOW_HEIGHT-50));
 
 	SetFont(&smallFont);
-	DrawString(B_TRANSLATE("points"), BPoint(455 - smallFont.StringWidth(B_TRANSLATE("points")) / 2,
-		355));
+	DrawString(B_TRANSLATE("points"), BPoint((WINDOW_WIDTH+10
+		- smallFont.StringWidth(B_TRANSLATE("points"))) / 2, WINDOW_HEIGHT-35));
 
 	SetFont(&bigFont);
-	DrawString(moves, BPoint(455 - bigFont.StringWidth(points) / 2, 375));
+	DrawString(moves, BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(points)) / 2, WINDOW_HEIGHT-15));
 
 	SetFont(&smallFont);
-	DrawString(B_TRANSLATE("moves"), BPoint(455 - smallFont.StringWidth(B_TRANSLATE("moves")) / 2, 390));
+	DrawString(B_TRANSLATE("moves"), BPoint((WINDOW_WIDTH+10
+		- smallFont.StringWidth(B_TRANSLATE("moves"))) / 2, WINDOW_HEIGHT));
 
 	if (fNoMoves > -1) {
 		SetFont(&bigFont);
 		SetHighColor(255, 0, 0);
 
 		DrawString(B_TRANSLATE("there are no constructive moves!"),
-			BPoint(455 - bigFont.StringWidth(B_TRANSLATE("there are no constructive moves!"))
-			/ 2, 315));
+			BPoint((WINDOW_WIDTH+10 - bigFont.StringWidth(
+			B_TRANSLATE("there are no constructive moves!"))) / 2, WINDOW_HEIGHT-75));
 	}
 	
 	//end = clock();
@@ -250,8 +251,8 @@ void SpiderView::MouseDown(BPoint point)
 	fMouseLock = true;
 
 	// use a stock
-	if (point.x > (900 - CARD_WIDTH - fStock * 15) && point.x < 900
-		&& point.y > 390 - CARD_HEIGHT && point.y < 390) {
+	if (point.x > (WINDOW_WIDTH - CARD_WIDTH - fStock * 15) && point.x < WINDOW_WIDTH
+		&& point.y > WINDOW_HEIGHT - CARD_HEIGHT && point.y < WINDOW_HEIGHT) {
 		if (fStock == 0) return;
 		for (short i = 0; i != 10; i++) {
 			// add a random card to the pile
