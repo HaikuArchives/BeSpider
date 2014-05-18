@@ -77,7 +77,11 @@ void SpiderWindow::MessageReceived(BMessage* message)
 
 BMenuBar* SpiderWindow::_CreateMenuBar()
 {
-	BMenuBar* menu = new BMenuBar("MenuBar");
+	BMenuBar* menuBar = new BMenuBar("MenuBar");
+	BMenu* menu = new BMenu("Menu");
+	BMenuItem* menuItem = new BMenuItem(menu);
+	menuItem->SetLabel(B_TRANSLATE("Game"));
+	menuBar->AddItem(menuItem);
 
 	menu->AddItem(new BMenuItem(B_TRANSLATE("New game"),
 		new BMessage(kNewGameMessage)));
@@ -94,5 +98,5 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	menu->AddItem(new BMenuItem(B_TRANSLATE_CONTEXT("Quit", "Menu bar"),
 		new BMessage(B_QUIT_REQUESTED)));
 
-	return menu;
+	return menuBar;
 }
