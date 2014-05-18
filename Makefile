@@ -89,7 +89,7 @@ LOCAL_INCLUDE_PATHS =
 
 #	specify the level of optimization that you desire
 #	NONE, SOME, FULL
-OPTIMIZE=
+OPTIMIZE=SOME
 
 # 	specify here the codes for languages you are going
 # 	to support in this application. The default "en"
@@ -123,8 +123,7 @@ SYMBOLS =
 DEBUGGER=
 
 #	specify additional compiler flags for all files
-COMPILER_FLAGS =-Wall -Wno-multichar -Woverloaded-virtual -Wno-unknown-pragmas \
-	-std=c++98 -pedantic-errors
+COMPILER_FLAGS =-Wall -Wno-multichar -Woverloaded-virtual -Wno-unknown-pragmas
 
 #	specify additional linker flags
 LINKER_FLAGS =
