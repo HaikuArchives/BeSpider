@@ -10,7 +10,7 @@ resource app_version {
 	internal = 0,
 
 	short_info = "BeSpider",
-	long_info = "Haiku Spider Solitaire Game"
+	long_info = "Spider Solitaire for Haiku."
 };
 
 resource(2, "Artwork/1_club.png")       #'rGFX' import "../Artwork/1_club.png" ;
