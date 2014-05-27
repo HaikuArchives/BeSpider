@@ -78,30 +78,35 @@ void SpiderWindow::MessageReceived(BMessage* message)
 BMenuBar* SpiderWindow::_CreateMenuBar()
 {
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
-	BMenu* menu = new BMenu(B_TRANSLATE("Game"));
-	BMenuItem* menuItem;
-	menuBar->AddItem(menu);
+	BMenu* menu1 = new BMenu(B_TRANSLATE("Game"));
+	BMenu* menu2 = new BMenu(B_TRANSLATE("Options"));
+	BMenuItem* menuItem1;
+	BMenuItem* menuItem2;
+	menuBar->AddItem(menu1);
+	menuBar->AddItem(menu2);
 	
-	menuItem = new BMenuItem(B_TRANSLATE("New game"), new BMessage(kNewGameMessage));
-	menuItem->SetShortcut('N', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	menuItem1 = new BMenuItem(B_TRANSLATE("New game"), new BMessage(kNewGameMessage));
+	menuItem1->SetShortcut('N', B_COMMAND_KEY);
+	menu1->AddItem(menuItem1);
 	
-	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(kDifficultyMessage));
-	menuItem->SetShortcut('D', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	menuItem2 = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(kDifficultyMessage));
+	menuItem2->SetShortcut('D', B_COMMAND_KEY);
+	menu2->AddItem(menuItem2);
 	
-	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(kHintMessage));
-	menuItem->SetShortcut('H', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	menuItem1 = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(kHintMessage));
+	menuItem1->SetShortcut('H', B_COMMAND_KEY);
+	menu1->AddItem(menuItem1);
+	menu1->AddSeparatorItem();
 
-	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About", "Menu bar"),
+	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About...", "Menu bar"),
 		new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
-	menu->AddItem(about);
+	menu1->AddItem(about);
+	menu1->AddSeparatorItem();
 	
-	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Quit", "Menu bar"), new BMessage(B_QUIT_REQUESTED));
-	menuItem->SetShortcut('Q', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	menuItem1 = new BMenuItem(B_TRANSLATE_CONTEXT("Quit", "Menu bar"), new BMessage(B_QUIT_REQUESTED));
+	menuItem1->SetShortcut('Q', B_COMMAND_KEY);
+	menu1->AddItem(menuItem1);
 
 	return menuBar;
 }
