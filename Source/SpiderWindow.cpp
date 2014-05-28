@@ -78,30 +78,34 @@ void SpiderWindow::MessageReceived(BMessage* message)
 BMenuBar* SpiderWindow::_CreateMenuBar()
 {
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
-	BMenu* menu = new BMenu(B_TRANSLATE("Game"));
+	BMenu* mGame = new BMenu(B_TRANSLATE("Game"));
+	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
 	BMenuItem* menuItem;
-	menuBar->AddItem(menu);
+	menuBar->AddItem(mGame);
+	menuBar->AddItem(mOptions);
 	
 	menuItem = new BMenuItem(B_TRANSLATE("New game"), new BMessage(kNewGameMessage));
 	menuItem->SetShortcut('N', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	mGame->AddItem(menuItem);
 	
 	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(kDifficultyMessage));
 	menuItem->SetShortcut('D', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	mOptions->AddItem(menuItem);
 	
 	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(kHintMessage));
 	menuItem->SetShortcut('H', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	mGame->AddItem(menuItem);
+	mGame->AddSeparatorItem();
 
-	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About", "Menu bar"),
+	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About...", "Menu bar"),
 		new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
-	menu->AddItem(about);
+	mGame->AddItem(about);
+	mGame->AddSeparatorItem();
 	
 	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Quit", "Menu bar"), new BMessage(B_QUIT_REQUESTED));
 	menuItem->SetShortcut('Q', B_COMMAND_KEY);
-	menu->AddItem(menuItem);
+	mGame->AddItem(menuItem);
 
 	return menuBar;
 }

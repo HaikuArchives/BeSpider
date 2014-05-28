@@ -29,13 +29,13 @@ SpiderApplication::SpiderApplication()
 void SpiderApplication::AboutRequested()
 {
 	BString aboutText = "";
-	aboutText << "BeSpider 0.1" << "\n"
-	<< B_TRANSLATE("a spider solitaire clone for Haiku")<<"\n\n"
+	aboutText << "BeSpider v0.1" << "\n"
+	<< B_TRANSLATE("A spider solitaire clone for Haiku.")<<"\n\n"
 	<< B_TRANSLATE("BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>")<<"\n"
 	<< B_TRANSLATE("Distributed under the terms of the MIT license.")<<"\n\n"
-	<< B_TRANSLATE("SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente")<<"\n"
+	<< B_TRANSLATE("SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente.")<<"\n"
 	<< B_TRANSLATE("Licensed under GNU Lesser General Public License 2.1.")<<"\n\n"
-	<< B_TRANSLATE("Fanfare sound (c) 2009 Anthony Batiste")<<"\n"
+	<< B_TRANSLATE("Fanfare sound (c) 2009 Anthony Batiste.")<<"\n"
 	<< B_TRANSLATE("Licensed under Creative Commons Attribution 3.0.");
 	
 	(new BAlert("AboutAlert", aboutText, B_TRANSLATE_CONTEXT("OK", "About alert")))->Go();
