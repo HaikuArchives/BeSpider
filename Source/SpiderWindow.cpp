@@ -97,7 +97,7 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	mGame->AddItem(menuItem);
 	mGame->AddSeparatorItem();
 
-	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About...", "Menu bar"),
+	BMenuItem* about = new BMenuItem(B_TRANSLATE_CONTEXT("About" B_UTF8_ELLIPSIS, "Menu bar"),
 		new BMessage(B_ABOUT_REQUESTED));
 	about->SetTarget(be_app);
 	mGame->AddItem(about);
