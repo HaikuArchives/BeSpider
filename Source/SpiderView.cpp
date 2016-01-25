@@ -35,9 +35,6 @@ SpiderView::SpiderView()
 
 	// Set easy difficulty
 	fColors = 1;
-	
-	for(short i = 0; i < CARDS_IN_PLAY; i++)
-		fAllCards[i] = NULL;
 }
 
 
@@ -50,8 +47,6 @@ SpiderView::~SpiderView()
 		delete fBack[i];
 	for(short i = 0; i < CARDS_IN_DECK; i++)
 		delete fCards[i];
-	for(short i = 0; i < CARDS_IN_PLAY; i++)
-		delete fAllCards[i];
 }
 
 
@@ -72,11 +67,11 @@ void SpiderView::Draw(BRect rect)
 	for(short i = 0; i < 10; i++) {
 		BRect rect(hSpacing + i * (CARD_WIDTH + hSpacing), 15,
 				hSpacing + (i + 1) * CARD_WIDTH + i * hSpacing, 15 + CARD_HEIGHT);
-		if(fBoard[i] == NULL)
+		if(spider.fBoard[i] == NULL)
 			DrawBitmap(fEmpty, rect);
 		else {
 			card* currentCard;
-			for(currentCard = fBoard[i]; currentCard != NULL;
+			for(currentCard = spider.fBoard[i]; currentCard != NULL;
 					currentCard = currentCard->fNextCard) {
 				if(currentCard->fRevealed == false) {
 					short numberOfBacks = 0; // 1 back
@@ -180,7 +175,7 @@ void SpiderView::Pulse()
 	}
 
 	if (fDealing != -1) { // dealing a new row
-		card* lastCard = _FindLastUsed(fDealing);
+		card* lastCard = spider._FindLastUsed(fDealing);
 		
 		switch (lastCard->fEffect) {
 		case E_ALPHA75:
@@ -190,7 +185,7 @@ void SpiderView::Pulse()
 			lastCard->fEffect = E_ALPHA25;
 			// start next animation
 			if(fDealing < 9)
-				_FindLastUsed(fDealing+1)->fEffect = E_ALPHA75;
+				spider._FindLastUsed(fDealing+1)->fEffect = E_ALPHA75;
 			break;
 		case E_ALPHA25:
 			lastCard->fEffect = E_NONE;
@@ -200,7 +195,7 @@ void SpiderView::Pulse()
 
 		Invalidate();
 	} else if (fStacking != -1) {
-		card* lastCard = _FindLastUsed(fStacking);
+		card* lastCard = spider._FindLastUsed(fStacking);
 		
 		switch (lastCard->fEffect) {
 		case E_ALPHA25:
@@ -215,7 +210,7 @@ void SpiderView::Pulse()
 			if(lastCard->fPrevCard != NULL)
 				lastCard->fPrevCard->fEffect = E_ALPHA25;
 			// detach current card
-			_RemoveCardFromPile(fStacking, lastCard);
+			spider._RemoveCardFromPile(fStacking, lastCard);
 			// move to next card
 			fStackingCard++;
 			break;
@@ -224,7 +219,7 @@ void SpiderView::Pulse()
 		Invalidate();
 
 		if (fStackingCard == 14) {
-			card* lastCard = _FindLastUsed(fStacking);
+			card* lastCard = spider._FindLastUsed(fStacking);
 			if(lastCard != NULL) {
 				lastCard->fRevealed = true;
 				lastCard->fEffect = E_NONE;
@@ -281,8 +276,8 @@ void SpiderView::MouseDown(BPoint point)
 		if (fStock == 0) return;
 		for (short i = 0; i != 10; i++) {
 			// add a random card to the pile
-			card* randomCard = _PickRandomCard();
-			_AddCardToPile(i, randomCard);
+			card* randomCard = spider._PickRandomCard();
+			spider._AddCardToPile(i, randomCard);
 
 			// hide card
 			randomCard->fEffect = E_HIDDEN;
@@ -304,10 +299,10 @@ void SpiderView::MouseDown(BPoint point)
 
 	// pick up a stack
 	short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
-	if (stack <= 9 && fBoard[stack] != NULL) {
+	if (stack <= 9 && spider.fBoard[stack] != NULL) {
 		// find clicked on card
 		int cardNumber = 1;
-		card* picked = fBoard[stack];
+		card* picked = spider.fBoard[stack];
 		while(picked->fNextCard != NULL) {
 			if(point.y - 15 * cardNumber < 15) {
 				break;
@@ -340,7 +335,7 @@ void SpiderView::MouseDown(BPoint point)
 		fPickedCard = picked;
 		fIsCardPicked = true;
 
-		_RemoveCardFromPile(stack, picked);
+		spider._RemoveCardFromPile(stack, picked);
 
 		BMessage msg(B_SIMPLE_DATA);
 		msg.AddPointer("view", this);
@@ -402,20 +397,20 @@ void SpiderView::MouseUp(BPoint point)
 		int hSpacing = _CardHSpacing();
 		short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
 
-		if(stack >= 0 && stack < 10 && (_FindLastUsed(stack) == NULL ||
-				_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
+		if(stack >= 0 && stack < 10 && (spider._FindLastUsed(stack) == NULL ||
+				spider._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
 			// attach to stack
-			_AddCardToPile(stack, fPickedCard);
+			spider._AddCardToPile(stack, fPickedCard);
 			
 			// reveal last card from pile the cards were from
-			if(_FindLastUsed(fPickedCardBoardPos) != NULL)
-				_FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
+			if(spider._FindLastUsed(fPickedCardBoardPos) != NULL)
+				spider._FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
 			
 			fPoints--;
 			fMoves++;
 		} else {
 			// reattach to old stack
-			_AddCardToPile(fPickedCardBoardPos, fPickedCard);
+			spider._AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		}
 
 		fIsCardPicked = false;
@@ -468,7 +463,7 @@ void SpiderView::Hint()
 	short stocksValues[10];
 
 	for (short i = 0; i != 10; i++) {
-		highestCard[i] = _FindLastUsed(i);
+		highestCard[i] = spider._FindLastUsed(i);
 		if(highestCard[i] == NULL) {
 			stocksValues[i] = -1;
 			continue;
@@ -493,8 +488,8 @@ void SpiderView::Hint()
 	
 	for(;; x = (x+1) % 10) {
 		for(; y < 10; y++) {
-			if(_FindLastUsed(y) == NULL ||
-					_FindLastUsed(y)->fValue - stocksValues[x] == 1) {
+			if(spider._FindLastUsed(y) == NULL ||
+					spider._FindLastUsed(y)->fValue - stocksValues[x] == 1) {
 				status = 1; // found a match
 				break;
 			}
@@ -513,7 +508,7 @@ void SpiderView::Hint()
 	if(status == 1) {
 		fIsHintShown = 2;
 		fHints[0] = highestCard[x];
-		fHints[1] = _FindLastUsed(y);
+		fHints[1] = spider._FindLastUsed(y);
 
 		for (card* currentCard = fHints[0];
 				currentCard != NULL; currentCard = currentCard->fNextCard)
@@ -608,39 +603,6 @@ void SpiderView::_LoadBitmaps()
 }
 
 
-card* SpiderView::_PickRandomCard()
-{
-	for(short i = 0; i < CARDS_IN_PLAY; i++) {
-		if(fAllCards[i]->fInPlay == false) { // if card not in play
-			fAllCards[i]->fInPlay = true; // move card into play
-			return fAllCards[i]; // return that card
-		}
-	}
-	printf("Error: ran out of cards to deal!\n");
-	return NULL; // no card found
-}
-
-
-void SpiderView::_AddCardToPile(int pile, card* cardToAdd) {
-	if(fBoard[pile] == NULL) {
-		fBoard[pile] = cardToAdd;
-	} else {
-		cardToAdd->fPrevCard = _FindLastUsed(pile);
-		cardToAdd->fPrevCard->fNextCard = cardToAdd;
-	}
-}
-
-
-void SpiderView::_RemoveCardFromPile(int pile, card* cardToRemove) {
-	if(fBoard[pile] == cardToRemove) { // first in pile
-		fBoard[pile] = NULL;
-	} else { // second or later in pile
-		cardToRemove->fPrevCard->fNextCard = NULL;
-		cardToRemove->fPrevCard = NULL;
-	}
-}
-
-
 void SpiderView::_GenerateBoard()
 {
 	srand(time(NULL));
@@ -664,8 +626,8 @@ void SpiderView::_GenerateBoard()
 		short randomCard = rand() % cardsLeft;
 		
 		// move card to actual deck
-		if(fAllCards[cardsLeft-1] != NULL) delete fAllCards[cardsLeft-1];
-		fAllCards[cardsLeft-1] = orderedCards[randomCard];
+		if(spider.fAllCards[cardsLeft-1] != NULL) delete spider.fAllCards[cardsLeft-1];
+		spider.fAllCards[cardsLeft-1] = orderedCards[randomCard];
 		
 		// replace picked card with card at back of deck
 		orderedCards[randomCard] = orderedCards[cardsLeft-1];
@@ -687,15 +649,15 @@ void SpiderView::_GenerateBoard()
 	fMoves = 0;
 
 	for (short i = 0; i != 10; i++) {
-		fBoard[i] = NULL; // clear
+		spider.fBoard[i] = NULL; // clear
 		short j = 6; // usually 6 cards
 		if(i < 4) j = 7; // if first 4 piles, 5 cards
 		for(; j > 0; j--) { // for each card
 			// pick a random next card, and add it
-			_AddCardToPile(i, _PickRandomCard());
+			spider._AddCardToPile(i, spider._PickRandomCard());
 		}
 		// at the last card, show it
-		card* lastCard = _FindLastUsed(i);
+		card* lastCard = spider._FindLastUsed(i);
 		lastCard->fRevealed = true;
 		lastCard->fEffect = E_HIDDEN;
 		if(i == 0) { // if the first pile
@@ -715,7 +677,7 @@ void SpiderView::_CheckBoard()
 	for (short i = 0; i != 10; i++) {
 		short needed = 0;
 		bool stacked = true;
-		card* currentCard = _FindLastUsed(i);
+		card* currentCard = spider._FindLastUsed(i);
 		if(currentCard == NULL)
 			continue;
 		short color = currentCard->fColor;
@@ -734,7 +696,7 @@ void SpiderView::_CheckBoard()
 			stacked = true;
 
 		if (stacked) {
-			card* first = _FindLastUsed(i);
+			card* first = spider._FindLastUsed(i);
 			fStackedColor[fStacked] = first->fColor;
 			fStacking = i;
 			fStackingCard = 1;
@@ -753,15 +715,4 @@ void SpiderView::_CheckBoard()
 				fShuffle->StartPlaying();
 		}
 	}
-}
-
-
-card* SpiderView::_FindLastUsed(short stock) {
-	card* currentCard = fBoard[stock];
-	if(currentCard == NULL)
-		return NULL;
-	while(currentCard->fNextCard != NULL)
-		currentCard = currentCard->fNextCard;
-
-	return currentCard;
 }
