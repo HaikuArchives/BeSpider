@@ -33,9 +33,6 @@ KlondikeView::KlondikeView()
 	windowHeight = STARTING_WINDOW_HEIGHT;
 
 	_LoadBitmaps();
-	
-	for (short i = 0; i < CARDS_IN_PLAY; i++)
-		fAllCards[i] = NULL;
 }
 
 
@@ -48,8 +45,6 @@ KlondikeView::~KlondikeView()
 		delete fBack[i];
 	for (short i = 0; i < CARDS_IN_DECK; i++)
 		delete fCards[i];
-	for (short i = 0; i < CARDS_IN_PLAY; i++)
-		delete fAllCards[i];
 }
 
 
@@ -158,11 +153,11 @@ void KlondikeView::Draw(BRect rect)
 		BRect rect(hSpacing + i * (CARD_WIDTH + hSpacing), 146,
 				hSpacing + (i + 1) * CARD_WIDTH + i * hSpacing,
 				146 + CARD_HEIGHT);
-		if (fBoard[i] == NULL)
+		if (solitare.fBoard[i] == NULL)
 			DrawBitmap(fEmpty, rect);
 		else {
 			card* currentCard;
-			for (currentCard = fBoard[i]; currentCard != NULL;
+			for (currentCard = solitare.fBoard[i]; currentCard != NULL;
 					currentCard = currentCard->fNextCard) {
 				if (currentCard->fRevealed == false) {
 					short numberOfBacks = 0;
@@ -374,9 +369,9 @@ void KlondikeView::MouseDown(BPoint point)
 		
 		// find picked card
 		for (short i = 0; i < CARDS_IN_DECK; i++) {
-			if (fAllCards[i]->fValue == value
-				&& fAllCards[i]->fColor == color)
-			fPickedCard = fAllCards[i];
+			if (solitare.fAllCards[i]->fValue == value
+				&& solitare.fAllCards[i]->fColor == color)
+			fPickedCard = solitare.fAllCards[i];
 		}
 		
 		BMessage msg(B_SIMPLE_DATA);
@@ -398,11 +393,11 @@ void KlondikeView::MouseDown(BPoint point)
 	}
 
 	// pick up a stack
-	if (stack < 7 && fBoard[stack] != NULL
+	if (stack < 7 && solitare.fBoard[stack] != NULL
 		&& point.x > hSpacing && point.y > 2 * 15 + CARD_HEIGHT) {
 		// find clicked on card
 		int cardNumber = 1;
-		card* picked = fBoard[stack];
+		card* picked = solitare.fBoard[stack];
 		while (picked->fNextCard != NULL) {
 			if (point.y - 18 * cardNumber - CARD_HEIGHT - 15 < 18) {
 				break;
@@ -438,7 +433,7 @@ void KlondikeView::MouseDown(BPoint point)
 		for (short i = 1; currentCard != NULL;
 				i++) {
 			pickedHeight++;
-			if (lastCard->fIsColorRed == currentCard->fIsColorRed)
+			if (lastCard->fColor & 1 == currentCard->fColor & 1)
 				return;
 			lastCard = currentCard;
 			currentCard = currentCard->fNextCard;
@@ -448,7 +443,7 @@ void KlondikeView::MouseDown(BPoint point)
 		fPickedCard = picked;
 		fIsCardPicked = true;
 
-		_RemoveCardFromPile(stack, picked);
+		solitare._RemoveCardFromPile(stack, picked);
 
 		BMessage msg(B_SIMPLE_DATA);
 		msg.AddPointer("view", this);
@@ -514,38 +509,38 @@ void KlondikeView::MouseUp(BPoint point)
 			if (fFoundationsColors[foundation] == fPickedCard->fColor
 				&& fPickedCard->fValue - fFoundations[foundation] == 1) {
 				fFoundations[foundation]++;
-				if (_FindLastUsed(fPickedCardBoardPos) != NULL)
-						_FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
+				if (solitare._FindLastUsed(fPickedCardBoardPos) != NULL)
+						solitare._FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
 				
 				fPoints += 10;
 				
 				CheckBoard();
 			} else
-				_AddCardToPile(fPickedCardBoardPos, fPickedCard);
+				solitare._AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		}
 		
 
-		else if (stack >= 0 && stack < 7 && (_FindLastUsed(stack) == NULL
-			|| (_FindLastUsed(stack)->fValue - fPickedCard->fValue == 1
-			&& _FindLastUsed(stack)->fIsColorRed
-			!= fPickedCard->fIsColorRed)) && fIsCardPicked
+		else if (stack >= 0 && stack < 7 && (solitare._FindLastUsed(stack) == NULL
+			|| (solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1
+			&& solitare._FindLastUsed(stack)->fColor & 1
+			!= fPickedCard->fColor & 1)) && fIsCardPicked
 			&& point.y > 2 * 15 + CARD_HEIGHT) {
 			// attach to stack, only kings on empty fields
-			if (!(fPickedCard-> fValue != 12 && fBoard[stack] == NULL)) {
-				_AddCardToPile(stack, fPickedCard);
+			if (!(fPickedCard-> fValue != 12 && solitare.fBoard[stack] == NULL)) {
+				solitare._AddCardToPile(stack, fPickedCard);
 			
 				// reveal last card from pile the cards were from
-				if (_FindLastUsed(fPickedCardBoardPos) != NULL) {
-					_FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
+				if (solitare._FindLastUsed(fPickedCardBoardPos) != NULL) {
+					solitare._FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
 					
 					if (stack != fPickedCardBoardPos)
 						fPoints += 5;
 				}
 			} else
-				_AddCardToPile(fPickedCardBoardPos, fPickedCard);
+				solitare._AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		} else {
 			// reattach to old stack
-			_AddCardToPile(fPickedCardBoardPos, fPickedCard);
+			solitare._AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		}
 
 		fIsCardPicked = false;
@@ -580,11 +575,11 @@ void KlondikeView::MouseUp(BPoint point)
 			}
 		}
 		
-		else if (stack >= 0 && stack < 7 && (_FindLastUsed(stack) == NULL
-				|| _FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
+		else if (stack >= 0 && stack < 7 && (solitare._FindLastUsed(stack) == NULL
+				|| solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
 			// attach to stack, only kings on empty fields
-			if (!(fPickedCard-> fValue != 12 && fBoard[stack] == NULL)) {
-				_AddCardToPile(stack, fPickedCard);
+			if (!(fPickedCard-> fValue != 12 && solitare.fBoard[stack] == NULL)) {
+				solitare._AddCardToPile(stack, fPickedCard);
 			
 				fPickedCard->fRevealed = true;
 				
@@ -605,10 +600,10 @@ void KlondikeView::MouseUp(BPoint point)
 		int hSpacing = _CardHSpacing();
 		short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
 		
-		if (stack >= 0 && stack < 7 && (_FindLastUsed(stack) == NULL
-				|| _FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
+		if (stack >= 0 && stack < 7 && (solitare._FindLastUsed(stack) == NULL
+				|| solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
 			// attach to stack
-			_AddCardToPile(stack, fPickedCard);
+			solitare._AddCardToPile(stack, fPickedCard);
 			
 			if (fFoundations[fPickedCardBoardPos] == -1)
 				fFoundationsColors[fPickedCardBoardPos] = -1;
@@ -655,7 +650,7 @@ void KlondikeView::Cheat() {
 	}
 	
 	for (short i = 0; i < 7; i++) {
-		_RemoveCardFromPile(i, fBoard[i]);
+		solitare._RemoveCardFromPile(i, solitare.fBoard[i]);
 	}
 	
 	for (short i = 0; i < 24; i++) {
@@ -754,59 +749,16 @@ void KlondikeView::_LoadBitmaps()
 	Invalidate();
 }
 
-
-card* KlondikeView::_PickRandomCard()
-{
-	for (short i = 0; i < CARDS_IN_PLAY; i++) {
-		if (fAllCards[i]->fInPlay == false) {
-			fAllCards[i]->fInPlay = true;
-			return fAllCards[i];
-		}
-	}
-
-	printf("Error: ran out of cards to deal!\n");
-	return NULL;
-}
-
-
-void KlondikeView::_AddCardToPile(int pile, card* cardToAdd) {
-	if (fBoard[pile] == NULL) {
-		fBoard[pile] = cardToAdd;
-	} else {
-		cardToAdd->fPrevCard = _FindLastUsed(pile);
-		cardToAdd->fPrevCard->fNextCard = cardToAdd;
-	}
-}
-
-
-void KlondikeView::_RemoveCardFromPile(int pile, card* cardToRemove) {
-	if (fBoard[pile] == cardToRemove) {
-		// first in pile
-		fBoard[pile] = NULL;
-	} else {
-		// second or later in pile
-		cardToRemove->fPrevCard->fNextCard = NULL;
-		cardToRemove->fPrevCard = NULL;
-	}
-}
-
-
 void KlondikeView::_GenerateBoard()
 {
 	srand(time(NULL));
 	
 	// create cards
-	card* orderedCards[CARDS_IN_PLAY];
-	for (short i = 0; i < CARDS_IN_PLAY; i++) {
+	card* orderedCards[KLONDIKE_CARDS_IN_PLAY];
+	for (short i = 0; i < KLONDIKE_CARDS_IN_PLAY; i++) {
 		orderedCards[i] = new card();
 		orderedCards[i]->fValue = i % CARDS_IN_SUIT; // A->K, repeat
 		orderedCards[i]->fColor = (i / CARDS_IN_SUIT) % 4;
-		
-		if (orderedCards[i]->fColor == 1
-			|| orderedCards[i]->fColor == 3)
-			orderedCards[i]->fIsColorRed = true;
-		else
-			orderedCards[i]->fIsColorRed = false;
 			
 		orderedCards[i]->fRevealed = false;
 		orderedCards[i]->fEffect = E_NONE;
@@ -816,13 +768,13 @@ void KlondikeView::_GenerateBoard()
 	}
 	
 	// randomize order of card array
-	for (short cardsLeft = CARDS_IN_PLAY; cardsLeft > 0; cardsLeft--) {
+	for (short cardsLeft = KLONDIKE_CARDS_IN_PLAY; cardsLeft > 0; cardsLeft--) {
 		short randomCard = rand() % cardsLeft;
 			// random number between 0 and (52, 51, 50, ...)
 		
 		// move card to actual deck
-		if (fAllCards[cardsLeft - 1] != NULL) delete fAllCards[cardsLeft - 1];
-		fAllCards[cardsLeft - 1] = orderedCards[randomCard];
+		if (solitare.fAllCards[cardsLeft - 1] != NULL) delete solitare.fAllCards[cardsLeft - 1];
+		solitare.fAllCards[cardsLeft - 1] = orderedCards[randomCard];
 		
 		orderedCards[randomCard] = orderedCards[cardsLeft - 1];
 		// replace picked card with card at back of deck
@@ -846,22 +798,22 @@ void KlondikeView::_GenerateBoard()
 
 	short cardsOnPile = 1;
 	for (short i = 0; i != 7; i++) {
-		fBoard[i] = NULL;
+		solitare.fBoard[i] = NULL;
 			// clear
 		short j = cardsOnPile;
 		for (; j > 0; j--) {
 			// for each card
-			_AddCardToPile(i, _PickRandomCard());
+			solitare._AddCardToPile(i, solitare._PickRandomCard());
 				// pick a random next card, and add it
 		}
 		cardsOnPile++;
-		card* lastCard = _FindLastUsed(i);
+		card* lastCard = solitare._FindLastUsed(i);
 		lastCard->fRevealed = true;
 			// at the last card, show it
 	}
 	
 	for (short i = 0; i != 24; i++) {
-		fStock[i] = _PickRandomCard();
+		fStock[i] = solitare._PickRandomCard();
 	}
 
 	fShuffle->StartPlaying();
@@ -889,10 +841,10 @@ bool KlondikeView::MoveOneToFoundation(short stack = 0, short endStack = 6) {
 		return true;
 	
 	for (short i = stack; i <= endStack; i++) {
-		if (fBoard[i] == NULL)
+		if (solitare.fBoard[i] == NULL)
 			continue;
 		
-		card* currentCard = _FindLastUsed(i);
+		card* currentCard = solitare._FindLastUsed(i);
 		short color = currentCard->fColor;
 		short value = currentCard->fValue;
 		short foundation = -1;
@@ -905,7 +857,7 @@ bool KlondikeView::MoveOneToFoundation(short stack = 0, short endStack = 6) {
 					
 					if (currentCard->fPrevCard != NULL)
 						currentCard->fPrevCard->fRevealed = true;
-					_RemoveCardFromPile(i, currentCard);
+					solitare._RemoveCardFromPile(i, currentCard);
 					fPoints += 10;
 					return true;
 				}
@@ -928,7 +880,7 @@ bool KlondikeView::MoveOneToFoundation(short stack = 0, short endStack = 6) {
 		if (value - fFoundations[foundation] == 1) {
 			if (currentCard->fPrevCard != NULL)
 				currentCard->fPrevCard->fRevealed = true;
-			_RemoveCardFromPile(i, currentCard);
+			solitare._RemoveCardFromPile(i, currentCard);
 			fFoundations[foundation]++;
 			fPoints += 10;
 			return true;
@@ -990,15 +942,4 @@ bool KlondikeView::_MoveWasteToFoundation() {
 	}
 	
 	return false;
-}
-
-
-card* KlondikeView::_FindLastUsed(short stock) {
-	card* currentCard = fBoard[stock];
-	if (currentCard == NULL)
-		return NULL;
-	while (currentCard->fNextCard != NULL)
-		currentCard = currentCard->fNextCard;
-
-	return currentCard;
 }

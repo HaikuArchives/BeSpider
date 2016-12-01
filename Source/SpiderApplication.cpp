@@ -3,8 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "SpiderApplication.h"
-#include "SpiderView.h"
-#include "SpiderWindow.h"
+#include "SelectorWindow.h"
 
 #include <Alert.h>
 #include <Catalog.h>
@@ -13,12 +12,11 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BeSpider"
 
-
 SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SpiderWindow(BRect(150, 150, 150+STARTING_WINDOW_WIDTH+20, 150+STARTING_WINDOW_HEIGHT+30), "BeSpider");
+	fWindow = new SelectorWindow(BRect(150, 150, 280, 230), "Pick Game");
 
 	fWindow->Lock();
 	fWindow->Show();

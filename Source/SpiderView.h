@@ -15,21 +15,7 @@
 #include <SimpleGameSound.h>
 #include <View.h>
 
-#include "Spider.h"
-
-#define STARTING_WINDOW_WIDTH 900
-#define STARTING_WINDOW_HEIGHT 490
-#define CARD_WIDTH 80
-#define CARD_HEIGHT 116
-#define CARDS_IN_SUIT 13
-#define CARD_IMAGE_BACK 52
-#define CARD_IMAGE_EMPTY 53
-#define CACHED_BACKS 6
-
-
-enum effect { E_NONE, E_ALPHA25, E_ALPHA50, E_ALPHA75,
-	E_HIDDEN, E_GREEN, E_RED };
-
+#include "Solitare.h"
 
 class SpiderView : public BView {
 public:
@@ -90,7 +76,7 @@ private:
 	int fPoints;
 	int fMoves;
 
-	Spider spider;
+	Solitare solitare;
 };
 
 #endif // _SPIDERVIEW_H_

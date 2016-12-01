@@ -6,6 +6,8 @@
 
 #include "SpiderView.h"
 
+#include "KlondikeView.h"
+
 #include <Alert.h>
 #include <Application.h>
 #include <Catalog.h>

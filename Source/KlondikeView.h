@@ -48,7 +48,6 @@ private:
 			void				_GenerateBoard();
 			bool				_MoveWasteToFoundation();
 			int					_CardHSpacing();
-									card* cardToRemove);
 
 			BBitmap*			fCards[CARDS_IN_DECK];
 			BBitmap*			fBack[CACHED_BACKS];
@@ -61,6 +60,7 @@ private:
 			int					windowWidth;
 			int					windowHeight;
 
+			card*				fStock[24];
 			short				fWasteCard;
 			bool				fIsWasteCardPicked;
 			short				fFoundations[4];

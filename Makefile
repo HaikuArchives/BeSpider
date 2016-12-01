@@ -35,7 +35,9 @@ APP_MIME_SIG=application/x-vnd.przemub.BeSpider
 #	are included from different directories.  Also note that spaces
 #	in folder names do not work well with this makefile.
 SRCS=Source/SpiderApplication.cpp Source/SpiderView.cpp \
-	Source/SpiderWindow.cpp Source/Spider.cpp
+	Source/SpiderWindow.cpp Source/Solitare.cpp \
+	Source/KlondikeWindow.cpp Source/KlondikeView.cpp \
+	Source/SelectorWindow.cpp
 
 #	specify the resource definition files to use
 #	full path or a relative path to the resource file can be used.
@@ -120,7 +122,7 @@ SYMBOLS =
 #	specify debug settings
 #	if TRUE will allow application to be run from a source-level
 #	debugger.  Note that this will disable all optimzation.
-DEBUGGER=
+DEBUGGER= TRUE
 
 #	specify additional compiler flags for all files
 COMPILER_FLAGS =-Wall -Wno-multichar -Woverloaded-virtual -Wno-unknown-pragmas
