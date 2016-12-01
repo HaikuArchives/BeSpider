@@ -4,6 +4,8 @@
  */
 #include "SpiderApplication.h"
 #include "SelectorWindow.h"
+#include "KlondikeWindow.h"
+#include "SpiderWindow.h"
 
 #include <Alert.h>
 #include <Catalog.h>
@@ -11,6 +13,9 @@
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BeSpider"
+
+#define STARTING_WINDOW_WIDTH 900
+#define STARTING_WINDOW_HEIGHT 490
 
 SpiderApplication::SpiderApplication()
 	:
@@ -39,6 +44,26 @@ void SpiderApplication::AboutRequested()
 	(new BAlert("AboutAlert", aboutText, B_TRANSLATE_CONTEXT("OK", "About alert")))->Go();
 }
 
+void SpiderApplication::MessageReceived(BMessage* message) {
+	switch (message->what) {
+		case SELECTOR_KLONDIKE:
+			fWindow = new KlondikeWindow(BRect(150, 150,
+				150 + STARTING_WINDOW_WIDTH + 20,
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeKlondike");
+			fWindow->Lock();
+			fWindow->Show();
+			fWindow->Unlock();
+			break;
+		case SELECTOR_SPIDER:
+			fWindow = new SpiderWindow(BRect(150, 150,
+				150 + STARTING_WINDOW_WIDTH + 20,
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeSpider");
+			fWindow->Lock();
+			fWindow->Show();
+			fWindow->Unlock();
+			break;
+	}
+}
 
 int main(int argc, char** argv)
 {

@@ -5,8 +5,7 @@
 #ifndef _SPIDERAPPLICATION_H_
 #define _SPIDERAPPLICATION_H_
 
-#include "SelectorWindow.h"
-
+#include <Window.h>
 #include <Application.h>
 
 
@@ -18,9 +17,9 @@ public:
 	SpiderApplication();
 
 	virtual void AboutRequested();
-
+	virtual void MessageReceived(BMessage* message);
 private:
-	SelectorWindow* fWindow;
+	BWindow* fWindow;
 };
 
 

@@ -11,10 +11,10 @@
 #include <Window.h>
 
 
-const int32 kNewGameMessage = 'NewG';
-const int32 kDifficultyMessage = 'Diff';
-const int32 kDiffChosenMessage = 'DiCh';
-const int32 kHintMessage = 'Hint';
+const int32 sNewGameMessage = 'NewG';
+const int32 sDifficultyMessage = 'Diff';
+const int32 sDiffChosenMessage = 'DiCh';
+const int32 sHintMessage = 'Hint';
 
 
 class SpiderWindow : public BWindow {

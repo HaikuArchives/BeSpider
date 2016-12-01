@@ -25,7 +25,7 @@ SpiderWindow::SpiderWindow(BRect frame, const char* title)
 	B_QUIT_ON_WINDOW_CLOSE)
 {
 	fView = new SpiderView();
-	fDiffSet = new BInvoker(new BMessage(kDiffChosenMessage), this);
+	fDiffSet = new BInvoker(new BMessage(sDiffChosenMessage), this);
 	
 	SetPulseRate(500000);
 
@@ -47,21 +47,21 @@ void SpiderWindow::MessageReceived(BMessage* message)
 	int32 response;
 
 	switch (message->what) {
-	case kNewGameMessage:
+	case sNewGameMessage:
 		fView->NewGame();
 		break;
-	case kDifficultyMessage:
+	case sDifficultyMessage:
 		question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
 			B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
 			B_TRANSLATE("Hard (4 colors)"),
 			B_WIDTH_AS_USUAL, B_IDEA_ALERT);
 		question->Go(fDiffSet);
 		break;
-	case kDiffChosenMessage:
+	case sDiffChosenMessage:
 		message->FindInt32("which", &response);
 		fView->ChangeDifficulty(response);
 		break;
-	case kHintMessage:
+	case sHintMessage:
 		fView->Hint();
 		break;
 	case 'DATA':
@@ -86,15 +86,15 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	menuBar->AddItem(mGame);
 	menuBar->AddItem(mOptions);
 	
-	menuItem = new BMenuItem(B_TRANSLATE("New game"), new BMessage(kNewGameMessage));
+	menuItem = new BMenuItem(B_TRANSLATE("New game"), new BMessage(sNewGameMessage));
 	menuItem->SetShortcut('N', B_COMMAND_KEY);
 	mGame->AddItem(menuItem);
 	
-	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(kDifficultyMessage));
+	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(sDifficultyMessage));
 	menuItem->SetShortcut('D', B_COMMAND_KEY);
 	mOptions->AddItem(menuItem);
 	
-	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(kHintMessage));
+	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(sHintMessage));
 	menuItem->SetShortcut('H', B_COMMAND_KEY);
 	mGame->AddItem(menuItem);
 	mGame->AddSeparatorItem();

@@ -13,14 +13,18 @@
 #include <GroupLayout.h>
 #include <Button.h>
 
+enum selector_messages { SELECTOR_RADIO1, SELECTOR_RADIO2,  SELECTOR_START, SELECTOR_KLONDIKE, SELECTOR_SPIDER };
+
 class SelectorWindow: public BWindow {
 public:
 	SelectorWindow(BRect frame, const char* title);
+	
+	virtual void MessageReceived(BMessage* message);
 private:
-	BGroupLayout* layout;
 	BRadioButton* radio1;
 	BRadioButton* radio2;
 	BButton* button;
+	bool klondike;
 };
 
 
