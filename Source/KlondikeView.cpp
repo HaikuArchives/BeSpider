@@ -522,8 +522,8 @@ void KlondikeView::MouseUp(BPoint point)
 
 		else if (stack >= 0 && stack < 7 && (solitare._FindLastUsed(stack) == NULL
 			|| (solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1
-			&& solitare._FindLastUsed(stack)->fColor & 1
-			!= fPickedCard->fColor & 1)) && fIsCardPicked
+			&& (solitare._FindLastUsed(stack)->fColor % 2)
+			!= (fPickedCard->fColor % 2))) && fIsCardPicked
 			&& point.y > 2 * 15 + CARD_HEIGHT) {
 			// attach to stack, only kings on empty fields
 			if (!(fPickedCard-> fValue != 12 && solitare.fBoard[stack] == NULL)) {
@@ -576,7 +576,8 @@ void KlondikeView::MouseUp(BPoint point)
 		}
 		
 		else if (stack >= 0 && stack < 7 && (solitare._FindLastUsed(stack) == NULL
-				|| solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
+				|| solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1
+				&& (solitare._FindLastUsed(stack)->fColor % 2) != (fPickedCard->fColor % 2))) {
 			// attach to stack, only kings on empty fields
 			if (!(fPickedCard-> fValue != 12 && solitare.fBoard[stack] == NULL)) {
 				solitare._AddCardToPile(stack, fPickedCard);

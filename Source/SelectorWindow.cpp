@@ -23,6 +23,8 @@ SelectorWindow::SelectorWindow(BRect frame, const char* title)
 	(B_TRANSLATE("Spider"), new BMessage(SELECTOR_RADIO2));
 	button = new BButton
 	(B_TRANSLATE("Play"), new BMessage(SELECTOR_START));
+	radio1->SetValue(1);
+	SetDefaultButton(button);
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 		.Add(radio1)
 		.Add(radio2)

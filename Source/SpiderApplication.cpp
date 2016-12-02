@@ -21,7 +21,7 @@ SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SelectorWindow(BRect(150, 150, 280, 230), "Pick Game");
+	fWindow = new SelectorWindow(BRect(150, 150, 280, 240), "Pick Game");
 
 	fWindow->Lock();
 	fWindow->Show();
