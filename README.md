@@ -8,5 +8,5 @@ To compile, simply…
 2. `cd` into the `BeSpider` folder.
 3. Run `make`.
 
-# Screenshot
+## Screenshot
 ![screenshot](https://github.com/skunkmb/BeSpider/blob/master/screenshot.png)
