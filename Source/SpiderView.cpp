@@ -176,9 +176,6 @@ void SpiderView::ReciveOptionMessage(BMessage* message) {
 				B_WIDTH_AS_USUAL, B_IDEA_ALERT);
 			ChangeDifficulty(question->Go());
 			break;
-		case sHintMessage:
-			Hint();
-			break;
 	}
 }
 

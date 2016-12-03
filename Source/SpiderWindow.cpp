@@ -50,6 +50,9 @@ void SpiderWindow::MessageReceived(BMessage* message)
 	case sNewGameMessage:
 		fView->NewGame();
 		break;
+	case sHintMessage:
+		fView->Hint();
+		break;
 	case OPTION_MESSAGE_TYPE:
 		message->FindMessage(OPTION_MESSAGE_LABEL, option_message);
 		fView->ReciveOptionMessage(option_message);
