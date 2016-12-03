@@ -1,6 +1,12 @@
-BeSpider
-========
+# BeSpider
+A spider solitaire clone for the [Haiku Operating System](https://www.haiku-os.org/).
 
-A spider solitaire clone for the Haiku Operating System.
+## Usage
+To compile, simply…
 
-To compile simply open a Terminal window, cd to the source directory and type 'make'.
+1. Open a Terminal window.
+2. `cd` into the `BeSpider` folder.
+3. Run `make`.
+
+# Screenshot
+![screenshot](https://github.com/skunkmb/BeSpider/blob/master/screenshot.png)
