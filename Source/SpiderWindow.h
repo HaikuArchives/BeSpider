@@ -6,20 +6,14 @@
 #define _SPIDERWINDOW_H__
 
 #include "SpiderView.h"
+#include "KlondikeView.h"
+#include "SolitareView.h"
 
-#include <Invoker.h>
 #include <Window.h>
-
-
-const int32 sNewGameMessage = 'NewG';
-const int32 sDifficultyMessage = 'Diff';
-const int32 sDiffChosenMessage = 'DiCh';
-const int32 sHintMessage = 'Hint';
-
 
 class SpiderWindow : public BWindow {
 public:
-	SpiderWindow(BRect frame, const char* title);
+	SpiderWindow(BRect frame, const char* title, bool is_klondike);
 
 	virtual void MessageReceived(BMessage* message);
 	virtual void FrameResized(float newWidth, float newHeight);
@@ -27,8 +21,7 @@ public:
 private:
 	BMenuBar* _CreateMenuBar();
 
-	SpiderView* fView;
-	BInvoker* fDiffSet;
+	SolitareView* fView;
 };
 
 #endif	// _SPIDERWINDOW_H_

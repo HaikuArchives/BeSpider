@@ -5,8 +5,7 @@
 #include "SpiderWindow.h"
 
 #include "SpiderView.h"
-
-#include "KlondikeView.h"
+#include "SolitareView.h"
 
 #include <Alert.h>
 #include <Application.h>
@@ -19,14 +18,17 @@
 #define B_TRANSLATION_CONTEXT "BeSpider"
 
 
-SpiderWindow::SpiderWindow(BRect frame, const char* title)
+SpiderWindow::SpiderWindow(BRect frame, const char* title, bool is_klondike)
 	:
 	BWindow(frame, title, B_DOCUMENT_WINDOW,
 	B_QUIT_ON_WINDOW_CLOSE)
 {
-	fView = new SpiderView();
-	fDiffSet = new BInvoker(new BMessage(sDiffChosenMessage), this);
-	
+	if (is_klondike) {
+		fView = new KlondikeView();
+	} else {
+		fView = new SpiderView();
+	}
+
 	SetPulseRate(500000);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
@@ -43,26 +45,14 @@ void SpiderWindow::FrameResized(float newWidth, float newHeight)
 
 void SpiderWindow::MessageReceived(BMessage* message)
 {
-	BAlert* question;
-	int32 response;
-
+	BMessage* option_message = new BMessage();
 	switch (message->what) {
 	case sNewGameMessage:
 		fView->NewGame();
 		break;
-	case sDifficultyMessage:
-		question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
-			B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
-			B_TRANSLATE("Hard (4 colors)"),
-			B_WIDTH_AS_USUAL, B_IDEA_ALERT);
-		question->Go(fDiffSet);
-		break;
-	case sDiffChosenMessage:
-		message->FindInt32("which", &response);
-		fView->ChangeDifficulty(response);
-		break;
-	case sHintMessage:
-		fView->Hint();
+	case OPTION_MESSAGE_TYPE:
+		message->FindMessage(OPTION_MESSAGE_LABEL, option_message);
+		fView->ReciveOptionMessage(option_message);
 		break;
 	case 'DATA':
 		if(message->WasDropped()) {
@@ -81,18 +71,17 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 {
 	BMenuBar* menuBar = new BMenuBar("MenuBar");
 	BMenu* mGame = new BMenu(B_TRANSLATE("Game"));
-	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+	BMenu* mOptions = fView->GetOptionMenu();
 	BMenuItem* menuItem;
 	menuBar->AddItem(mGame);
-	menuBar->AddItem(mOptions);
+	
+	if (mOptions != NULL) {
+		menuBar->AddItem(fView->GetOptionMenu());
+	}
 	
 	menuItem = new BMenuItem(B_TRANSLATE("New game"), new BMessage(sNewGameMessage));
 	menuItem->SetShortcut('N', B_COMMAND_KEY);
 	mGame->AddItem(menuItem);
-	
-	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), new BMessage(sDifficultyMessage));
-	menuItem->SetShortcut('D', B_COMMAND_KEY);
-	mOptions->AddItem(menuItem);
 	
 	menuItem = new BMenuItem(B_TRANSLATE_CONTEXT("Hint", "Menu bar"), new BMessage(sHintMessage));
 	menuItem->SetShortcut('H', B_COMMAND_KEY);

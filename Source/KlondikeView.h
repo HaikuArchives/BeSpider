@@ -11,15 +11,23 @@
 #include <FileGameSound.h>
 #include <Point.h>
 #include <Rect.h>
+#include <Menu.h>
 #include <Resources.h>
 #include <SimpleGameSound.h>
 #include <View.h>
 
 #include "Solitare.h"
+#include "SolitareView.h"
+
+const int32 kNewGameMessage = 'NewG';
+const int32 kCheatMessage = 'Chtr';
+const int32 kAutoPlayMessage = 'Auto';
+const int32 kAutoPlayEnableMessage = 'EAut';
+const int32 kQuickAutoPlayMessage = 'QAut';
 
 #define KLONDIKE_CARDS_IN_PLAY CARDS_IN_DECK
 
-class KlondikeView : public BView {
+class KlondikeView : public SolitareView {
 public:
 								KlondikeView();
 								~KlondikeView();
@@ -29,17 +37,12 @@ public:
 	virtual	void				Pulse();
 	virtual	void				MouseDown(BPoint point);
 	virtual	void				MouseUp(BPoint point);
+	virtual BMenu*				GetOptionMenu();
+	virtual void				ReciveOptionMessage(BMessage* message);
 
-			void				NewGame();
-			void				Cheat();
-			void				SetAutoPlay(bool enabled, bool quick);
-			bool				MoveOneToFoundation(short stack = 0,
-									short endStack = 6);
-			void				Resize(float newWidth, float newHeight);
-			void				CheckBoard();
-
-			
-			bool				fAutoPlayStarted;
+	virtual void				NewGame();
+	
+	virtual	void				Resize(float newWidth, float newHeight);
 
 
 private:
@@ -48,7 +51,13 @@ private:
 			void				_GenerateBoard();
 			bool				_MoveWasteToFoundation();
 			int					_CardHSpacing();
-
+			void				Cheat();
+			void				CheckBoard();
+			bool				MoveOneToFoundation(short stack = 0,
+									short endStack = 6);
+									
+			bool				fAutoPlayStarted;
+			
 			BBitmap*			fCards[CARDS_IN_DECK];
 			BBitmap*			fBack[CACHED_BACKS];
 			BBitmap*			fEmpty;
@@ -78,6 +87,9 @@ private:
 			bool				fQuickAutoPlay;
 			short				fDoubleClick;
 			short				fAutoPlayCountdown;
+
+			BMenuItem*		fAutoPlayEnabledItem;
+			BMenuItem*		fQuickAutoPlayItem;
 
 			int					fPoints;
 			Solitare solitare;

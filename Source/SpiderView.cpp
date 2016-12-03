@@ -9,6 +9,7 @@
 #include <Catalog.h>
 #include <Entry.h>
 #include <Path.h>
+#include <MenuItem.h>
 #include <Roster.h>
 #include <String.h>
 #include <TranslationUtils.h>
@@ -23,7 +24,7 @@
 
 SpiderView::SpiderView()
 	:
-	BView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
+	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
 		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
 	SetViewColor(0, 85, 0);
@@ -165,6 +166,32 @@ void SpiderView::Draw(BRect rect)
 	//printf("Time: %.6f\n", diff / (double)CLOCKS_PER_SEC);
 }
 
+void SpiderView::ReciveOptionMessage(BMessage* message) {
+	BAlert* question;
+	switch (message->what) {
+		case sDifficultyMessage:
+			question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
+				B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
+				B_TRANSLATE("Hard (4 colors)"),
+				B_WIDTH_AS_USUAL, B_IDEA_ALERT);
+			ChangeDifficulty(question->Go());
+			break;
+		case sHintMessage:
+			Hint();
+			break;
+	}
+}
+
+BMenu* SpiderView::GetOptionMenu() {
+	BMenuItem* menuItem;
+	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+
+	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), NewSolitareOptionMessage(sDifficultyMessage));
+	menuItem->SetShortcut('D', B_COMMAND_KEY);
+	mOptions->AddItem(menuItem);
+	
+	return mOptions;
+}
 
 void SpiderView::Pulse()
 {

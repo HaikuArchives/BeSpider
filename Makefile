@@ -36,8 +36,8 @@ APP_MIME_SIG=application/x-vnd.przemub.BeSpider
 #	in folder names do not work well with this makefile.
 SRCS=Source/SpiderApplication.cpp Source/SpiderView.cpp \
 	Source/SpiderWindow.cpp Source/Solitare.cpp \
-	Source/KlondikeWindow.cpp Source/KlondikeView.cpp \
-	Source/SelectorWindow.cpp
+	Source/KlondikeView.cpp Source/SelectorWindow.cpp \
+	Source/SolitareView.cpp
 
 #	specify the resource definition files to use
 #	full path or a relative path to the resource file can be used.

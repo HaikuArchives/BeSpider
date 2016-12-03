@@ -10,14 +10,21 @@
 #include <Entry.h>
 #include <FileGameSound.h>
 #include <Point.h>
+#include <Menu.h>
 #include <Rect.h>
 #include <Resources.h>
 #include <SimpleGameSound.h>
 #include <View.h>
 
+#include "SolitareView.h"
 #include "Solitare.h"
 
-class SpiderView : public BView {
+const uint32 sNewGameMessage = 'NewG';
+const uint32 sDifficultyMessage = 'Diff';
+const uint32 sDiffChosenMessage = 'DiCh';
+const uint32 sHintMessage = 'Hint';
+
+class SpiderView : public SolitareView {
 public:
 	SpiderView();
 	~SpiderView();
@@ -29,11 +36,12 @@ public:
 	virtual void MouseMoved(BPoint point,
 		uint32 transit, const BMessage* message);
 	virtual void MouseUp(BPoint point);
-
-	void NewGame();
-	void ChangeDifficulty(int difficulty);
-	void Hint();
-	void Resize(float newWidth, float newHeight);
+	virtual void ReciveOptionMessage(BMessage* message);
+	virtual BMenu* GetOptionMenu();
+	
+	virtual void NewGame();
+	virtual void Resize(float newWidth, float newHeight);
+	virtual void Hint();
 
 private:
 	BSimpleGameSound* _LoadSound(const char* resourceName);
@@ -41,6 +49,7 @@ private:
 	void _GenerateBoard();
 	void _CheckBoard();
 	int _CardHSpacing();
+	void ChangeDifficulty(int difficulty);
 
 	BBitmap* fCards[CARDS_IN_DECK];
 	BBitmap* fBack[CACHED_BACKS];

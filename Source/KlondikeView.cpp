@@ -10,6 +10,7 @@
 #include <Entry.h>
 #include <Path.h>
 #include <Roster.h>
+#include <MenuItem.h>
 #include <String.h>
 #include <TranslationUtils.h>
 
@@ -23,7 +24,7 @@
 
 KlondikeView::KlondikeView()
 	:
-	BView(BRect(0, 0, STARTING_WINDOW_WIDTH + 10, STARTING_WINDOW_HEIGHT + 10),
+	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH + 10, STARTING_WINDOW_HEIGHT + 10),
 		"KlondikeView", B_FOLLOW_LEFT | B_FOLLOW_TOP,
 		B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
@@ -235,6 +236,23 @@ void KlondikeView::Draw(BRect rect)
 	}
 }
 
+void KlondikeView::ReciveOptionMessage(BMessage* message) {
+	switch (message->what) {
+	case kCheatMessage:
+		Cheat();
+		break;
+	case kAutoPlayEnableMessage:
+		fAutoPlayEnabled = !fAutoPlayEnabled;
+		
+		fAutoPlayEnabledItem->SetMarked(fAutoPlayEnabled);
+		fQuickAutoPlayItem->SetEnabled(fAutoPlayEnabled);
+		break;
+	case kQuickAutoPlayMessage:
+		fQuickAutoPlay = !fQuickAutoPlay;
+		fQuickAutoPlayItem->SetMarked(fQuickAutoPlay);
+		break;
+	}
+}
 
 void KlondikeView::Pulse()
 {
@@ -631,13 +649,6 @@ void KlondikeView::NewGame()
 	Invalidate();
 }
 
-
-void KlondikeView::SetAutoPlay(bool enabled, bool quick) {
-	fAutoPlayEnabled = enabled;
-	fQuickAutoPlay = quick;
-}
-
-
 int KlondikeView::_CardHSpacing()
 {
 	return((windowWidth - (CARD_WIDTH * 7)) / 8);
@@ -943,4 +954,26 @@ bool KlondikeView::_MoveWasteToFoundation() {
 	}
 	
 	return false;
+}
+
+BMenu* KlondikeView::GetOptionMenu() {
+	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+	BMenuItem* menuItem;
+	fAutoPlayEnabledItem = new BMenuItem(B_TRANSLATE("Auto-play"),
+		NewSolitareOptionMessage(kAutoPlayEnableMessage));
+	fAutoPlayEnabledItem->SetMarked(true);
+	mOptions->AddItem(fAutoPlayEnabledItem);
+	fAutoPlayEnabled = true;
+	
+	fQuickAutoPlayItem = new BMenuItem(B_TRANSLATE("Quick auto-play"),
+		NewSolitareOptionMessage(kQuickAutoPlayMessage));
+	mOptions->AddItem(fQuickAutoPlayItem);
+	mOptions->AddSeparatorItem();
+	fQuickAutoPlay = false;
+	
+	menuItem = new BMenuItem(B_TRANSLATE("Cheat!"),
+		NewSolitareOptionMessage(kCheatMessage));
+	menuItem->SetShortcut('C', B_COMMAND_KEY);
+	mOptions->AddItem(menuItem);
+	return mOptions;
 }

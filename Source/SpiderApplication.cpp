@@ -4,7 +4,6 @@
  */
 #include "SpiderApplication.h"
 #include "SelectorWindow.h"
-#include "KlondikeWindow.h"
 #include "SpiderWindow.h"
 
 #include <Alert.h>
@@ -47,9 +46,9 @@ void SpiderApplication::AboutRequested()
 void SpiderApplication::MessageReceived(BMessage* message) {
 	switch (message->what) {
 		case SELECTOR_KLONDIKE:
-			fWindow = new KlondikeWindow(BRect(150, 150,
+			fWindow = new SpiderWindow(BRect(150, 150,
 				150 + STARTING_WINDOW_WIDTH + 20,
-				150 + STARTING_WINDOW_HEIGHT + 30), "BeKlondike");
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeKlondike", true);
 			fWindow->Lock();
 			fWindow->Show();
 			fWindow->Unlock();
@@ -57,7 +56,7 @@ void SpiderApplication::MessageReceived(BMessage* message) {
 		case SELECTOR_SPIDER:
 			fWindow = new SpiderWindow(BRect(150, 150,
 				150 + STARTING_WINDOW_WIDTH + 20,
-				150 + STARTING_WINDOW_HEIGHT + 30), "BeSpider");
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeSpider", false);
 			fWindow->Lock();
 			fWindow->Show();
 			fWindow->Unlock();
