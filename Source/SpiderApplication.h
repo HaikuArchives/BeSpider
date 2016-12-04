@@ -5,7 +5,7 @@
 #ifndef _SPIDERAPPLICATION_H_
 #define _SPIDERAPPLICATION_H_
 
-
+#include <Window.h>
 #include <Application.h>
 
 
@@ -17,9 +17,9 @@ public:
 	SpiderApplication();
 
 	virtual void AboutRequested();
-
+	virtual void MessageReceived(BMessage* message);
 private:
-	SpiderWindow* fWindow;
+	BWindow* fWindow;
 };
 
 

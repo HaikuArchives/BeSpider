@@ -1,26 +1,26 @@
-#include "Spider.h"
+#include "Solitare.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
 
-Spider::Spider()
+Solitare::Solitare()
 {
-	for(short i = 0; i < CARDS_IN_PLAY; i++)
+	for(short i = 0; i < MAX_CARDS_IN_PLAY; i++)
 		fAllCards[i] = NULL;
 }
 
 
-Spider::~Spider()
+Solitare::~Solitare()
 {
-	for(short i = 0; i < CARDS_IN_PLAY; i++)
+	for(short i = 0; i < MAX_CARDS_IN_PLAY; i++)
 		delete fAllCards[i];
 }
 
 
-card* Spider::_PickRandomCard()
+card* Solitare::_PickRandomCard()
 {
-	for(short i = 0; i < CARDS_IN_PLAY; i++) {
+	for(short i = 0; i < MAX_CARDS_IN_PLAY; i++) {
 		if(fAllCards[i]->fInPlay == false) { // if card not in play
 			fAllCards[i]->fInPlay = true; // move card into play
 			return fAllCards[i]; // return that card
@@ -31,7 +31,7 @@ card* Spider::_PickRandomCard()
 }
 
 
-void Spider::_AddCardToPile(int pile, card* cardToAdd) {
+void Solitare::_AddCardToPile(int pile, card* cardToAdd) {
 	if(fBoard[pile] == NULL) {
 		fBoard[pile] = cardToAdd;
 	} else {
@@ -41,7 +41,7 @@ void Spider::_AddCardToPile(int pile, card* cardToAdd) {
 }
 
 
-void Spider::_RemoveCardFromPile(int pile, card* cardToRemove) {
+void Solitare::_RemoveCardFromPile(int pile, card* cardToRemove) {
 	if(fBoard[pile] == cardToRemove) { // first in pile
 		fBoard[pile] = NULL;
 	} else { // second or later in pile
@@ -51,7 +51,7 @@ void Spider::_RemoveCardFromPile(int pile, card* cardToRemove) {
 }
 
 
-card* Spider::_FindLastUsed(short stock) {
+card* Solitare::_FindLastUsed(short stock) {
 	card* currentCard = fBoard[stock];
 	if(currentCard == NULL)
 		return NULL;

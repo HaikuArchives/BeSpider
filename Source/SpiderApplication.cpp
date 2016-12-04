@@ -3,7 +3,7 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #include "SpiderApplication.h"
-#include "SpiderView.h"
+#include "SelectorWindow.h"
 #include "SpiderWindow.h"
 
 #include <Alert.h>
@@ -13,12 +13,14 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BeSpider"
 
+#define STARTING_WINDOW_WIDTH 900
+#define STARTING_WINDOW_HEIGHT 490
 
 SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SpiderWindow(BRect(150, 150, 150+STARTING_WINDOW_WIDTH+20, 150+STARTING_WINDOW_HEIGHT+30), "BeSpider");
+	fWindow = new SelectorWindow(BRect(150, 150, 280, 240), "Pick Game");
 
 	fWindow->Lock();
 	fWindow->Show();
@@ -41,6 +43,26 @@ void SpiderApplication::AboutRequested()
 	(new BAlert("AboutAlert", aboutText, B_TRANSLATE_CONTEXT("OK", "About alert")))->Go();
 }
 
+void SpiderApplication::MessageReceived(BMessage* message) {
+	switch (message->what) {
+		case SELECTOR_KLONDIKE:
+			fWindow = new SpiderWindow(BRect(150, 150,
+				150 + STARTING_WINDOW_WIDTH + 20,
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeKlondike", true);
+			fWindow->Lock();
+			fWindow->Show();
+			fWindow->Unlock();
+			break;
+		case SELECTOR_SPIDER:
+			fWindow = new SpiderWindow(BRect(150, 150,
+				150 + STARTING_WINDOW_WIDTH + 20,
+				150 + STARTING_WINDOW_HEIGHT + 30), "BeSpider", false);
+			fWindow->Lock();
+			fWindow->Show();
+			fWindow->Unlock();
+			break;
+	}
+}
 
 int main(int argc, char** argv)
 {

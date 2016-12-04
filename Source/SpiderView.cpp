@@ -9,6 +9,7 @@
 #include <Catalog.h>
 #include <Entry.h>
 #include <Path.h>
+#include <MenuItem.h>
 #include <Roster.h>
 #include <String.h>
 #include <TranslationUtils.h>
@@ -23,7 +24,7 @@
 
 SpiderView::SpiderView()
 	:
-	BView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
+	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
 		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
 	SetViewColor(0, 85, 0);
@@ -67,11 +68,11 @@ void SpiderView::Draw(BRect rect)
 	for(short i = 0; i < 10; i++) {
 		BRect rect(hSpacing + i * (CARD_WIDTH + hSpacing), 15,
 				hSpacing + (i + 1) * CARD_WIDTH + i * hSpacing, 15 + CARD_HEIGHT);
-		if(spider.fBoard[i] == NULL)
+		if(solitare.fBoard[i] == NULL)
 			DrawBitmap(fEmpty, rect);
 		else {
 			card* currentCard;
-			for(currentCard = spider.fBoard[i]; currentCard != NULL;
+			for(currentCard = solitare.fBoard[i]; currentCard != NULL;
 					currentCard = currentCard->fNextCard) {
 				if(currentCard->fRevealed == false) {
 					short numberOfBacks = 0; // 1 back
@@ -165,6 +166,29 @@ void SpiderView::Draw(BRect rect)
 	//printf("Time: %.6f\n", diff / (double)CLOCKS_PER_SEC);
 }
 
+void SpiderView::ReciveOptionMessage(BMessage* message) {
+	BAlert* question;
+	switch (message->what) {
+		case sDifficultyMessage:
+			question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
+				B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
+				B_TRANSLATE("Hard (4 colors)"),
+				B_WIDTH_AS_USUAL, B_IDEA_ALERT);
+			ChangeDifficulty(question->Go());
+			break;
+	}
+}
+
+BMenu* SpiderView::GetOptionMenu() {
+	BMenuItem* menuItem;
+	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+
+	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), NewSolitareOptionMessage(sDifficultyMessage));
+	menuItem->SetShortcut('D', B_COMMAND_KEY);
+	mOptions->AddItem(menuItem);
+	
+	return mOptions;
+}
 
 void SpiderView::Pulse()
 {
@@ -175,7 +199,7 @@ void SpiderView::Pulse()
 	}
 
 	if (fDealing != -1) { // dealing a new row
-		card* lastCard = spider._FindLastUsed(fDealing);
+		card* lastCard = solitare._FindLastUsed(fDealing);
 		
 		switch (lastCard->fEffect) {
 		case E_ALPHA75:
@@ -185,7 +209,7 @@ void SpiderView::Pulse()
 			lastCard->fEffect = E_ALPHA25;
 			// start next animation
 			if(fDealing < 9)
-				spider._FindLastUsed(fDealing+1)->fEffect = E_ALPHA75;
+				solitare._FindLastUsed(fDealing+1)->fEffect = E_ALPHA75;
 			break;
 		case E_ALPHA25:
 			lastCard->fEffect = E_NONE;
@@ -195,7 +219,7 @@ void SpiderView::Pulse()
 
 		Invalidate();
 	} else if (fStacking != -1) {
-		card* lastCard = spider._FindLastUsed(fStacking);
+		card* lastCard = solitare._FindLastUsed(fStacking);
 		
 		switch (lastCard->fEffect) {
 		case E_ALPHA25:
@@ -210,7 +234,7 @@ void SpiderView::Pulse()
 			if(lastCard->fPrevCard != NULL)
 				lastCard->fPrevCard->fEffect = E_ALPHA25;
 			// detach current card
-			spider._RemoveCardFromPile(fStacking, lastCard);
+			solitare._RemoveCardFromPile(fStacking, lastCard);
 			// move to next card
 			fStackingCard++;
 			break;
@@ -219,7 +243,7 @@ void SpiderView::Pulse()
 		Invalidate();
 
 		if (fStackingCard == 14) {
-			card* lastCard = spider._FindLastUsed(fStacking);
+			card* lastCard = solitare._FindLastUsed(fStacking);
 			if(lastCard != NULL) {
 				lastCard->fRevealed = true;
 				lastCard->fEffect = E_NONE;
@@ -276,8 +300,8 @@ void SpiderView::MouseDown(BPoint point)
 		if (fStock == 0) return;
 		for (short i = 0; i != 10; i++) {
 			// add a random card to the pile
-			card* randomCard = spider._PickRandomCard();
-			spider._AddCardToPile(i, randomCard);
+			card* randomCard = solitare._PickRandomCard();
+			solitare._AddCardToPile(i, randomCard);
 
 			// hide card
 			randomCard->fEffect = E_HIDDEN;
@@ -299,10 +323,10 @@ void SpiderView::MouseDown(BPoint point)
 
 	// pick up a stack
 	short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
-	if (stack <= 9 && spider.fBoard[stack] != NULL) {
+	if (stack <= 9 && solitare.fBoard[stack] != NULL) {
 		// find clicked on card
 		int cardNumber = 1;
-		card* picked = spider.fBoard[stack];
+		card* picked = solitare.fBoard[stack];
 		while(picked->fNextCard != NULL) {
 			if(point.y - 15 * cardNumber < 15) {
 				break;
@@ -335,7 +359,7 @@ void SpiderView::MouseDown(BPoint point)
 		fPickedCard = picked;
 		fIsCardPicked = true;
 
-		spider._RemoveCardFromPile(stack, picked);
+		solitare._RemoveCardFromPile(stack, picked);
 
 		BMessage msg(B_SIMPLE_DATA);
 		msg.AddPointer("view", this);
@@ -397,20 +421,20 @@ void SpiderView::MouseUp(BPoint point)
 		int hSpacing = _CardHSpacing();
 		short stack = (int)((point.x - hSpacing) / (CARD_WIDTH + hSpacing));
 
-		if(stack >= 0 && stack < 10 && (spider._FindLastUsed(stack) == NULL ||
-				spider._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
+		if(stack >= 0 && stack < 10 && (solitare._FindLastUsed(stack) == NULL ||
+				solitare._FindLastUsed(stack)->fValue - fPickedCard->fValue == 1)) {
 			// attach to stack
-			spider._AddCardToPile(stack, fPickedCard);
+			solitare._AddCardToPile(stack, fPickedCard);
 			
 			// reveal last card from pile the cards were from
-			if(spider._FindLastUsed(fPickedCardBoardPos) != NULL)
-				spider._FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
+			if(solitare._FindLastUsed(fPickedCardBoardPos) != NULL)
+				solitare._FindLastUsed(fPickedCardBoardPos)->fRevealed = true;
 			
 			fPoints--;
 			fMoves++;
 		} else {
 			// reattach to old stack
-			spider._AddCardToPile(fPickedCardBoardPos, fPickedCard);
+			solitare._AddCardToPile(fPickedCardBoardPos, fPickedCard);
 		}
 
 		fIsCardPicked = false;
@@ -463,7 +487,7 @@ void SpiderView::Hint()
 	short stocksValues[10];
 
 	for (short i = 0; i != 10; i++) {
-		highestCard[i] = spider._FindLastUsed(i);
+		highestCard[i] = solitare._FindLastUsed(i);
 		if(highestCard[i] == NULL) {
 			stocksValues[i] = -1;
 			continue;
@@ -488,8 +512,8 @@ void SpiderView::Hint()
 	
 	for(;; x = (x+1) % 10) {
 		for(; y < 10; y++) {
-			if(spider._FindLastUsed(y) == NULL ||
-					spider._FindLastUsed(y)->fValue - stocksValues[x] == 1) {
+			if(solitare._FindLastUsed(y) != NULL &&
+					solitare._FindLastUsed(y)->fValue - stocksValues[x] == 1) {
 				status = 1; // found a match
 				break;
 			}
@@ -508,7 +532,7 @@ void SpiderView::Hint()
 	if(status == 1) {
 		fIsHintShown = 2;
 		fHints[0] = highestCard[x];
-		fHints[1] = spider._FindLastUsed(y);
+		fHints[1] = solitare._FindLastUsed(y);
 
 		for (card* currentCard = fHints[0];
 				currentCard != NULL; currentCard = currentCard->fNextCard)
@@ -608,8 +632,8 @@ void SpiderView::_GenerateBoard()
 	srand(time(NULL));
 	
 	// create cards
-	card* orderedCards[CARDS_IN_PLAY];
-	for (short i = 0; i < CARDS_IN_PLAY; i++) {
+	card* orderedCards[SPIDER_CARDS_IN_PLAY];
+	for (short i = 0; i < SPIDER_CARDS_IN_PLAY; i++) {
 		orderedCards[i] = new card();
 		orderedCards[i]->fValue = i % CARDS_IN_SUIT; // A->K, repeat
 		orderedCards[i]->fColor = (i/CARDS_IN_SUIT) % fColors;
@@ -621,13 +645,13 @@ void SpiderView::_GenerateBoard()
 	}
 	
 	// randomize order of card array
-	for(short cardsLeft = CARDS_IN_PLAY; cardsLeft > 0; cardsLeft--) {
+	for(short cardsLeft = SPIDER_CARDS_IN_PLAY; cardsLeft > 0; cardsLeft--) {
 		// random number between 0 and (52, 51, 50, ...)
 		short randomCard = rand() % cardsLeft;
 		
 		// move card to actual deck
-		if(spider.fAllCards[cardsLeft-1] != NULL) delete spider.fAllCards[cardsLeft-1];
-		spider.fAllCards[cardsLeft-1] = orderedCards[randomCard];
+		if(solitare.fAllCards[cardsLeft-1] != NULL) delete solitare.fAllCards[cardsLeft-1];
+		solitare.fAllCards[cardsLeft-1] = orderedCards[randomCard];
 		
 		// replace picked card with card at back of deck
 		orderedCards[randomCard] = orderedCards[cardsLeft-1];
@@ -649,15 +673,15 @@ void SpiderView::_GenerateBoard()
 	fMoves = 0;
 
 	for (short i = 0; i != 10; i++) {
-		spider.fBoard[i] = NULL; // clear
+		solitare.fBoard[i] = NULL; // clear
 		short j = 6; // usually 6 cards
 		if(i < 4) j = 7; // if first 4 piles, 5 cards
 		for(; j > 0; j--) { // for each card
 			// pick a random next card, and add it
-			spider._AddCardToPile(i, spider._PickRandomCard());
+			solitare._AddCardToPile(i, solitare._PickRandomCard());
 		}
 		// at the last card, show it
-		card* lastCard = spider._FindLastUsed(i);
+		card* lastCard = solitare._FindLastUsed(i);
 		lastCard->fRevealed = true;
 		lastCard->fEffect = E_HIDDEN;
 		if(i == 0) { // if the first pile
@@ -677,7 +701,7 @@ void SpiderView::_CheckBoard()
 	for (short i = 0; i != 10; i++) {
 		short needed = 0;
 		bool stacked = true;
-		card* currentCard = spider._FindLastUsed(i);
+		card* currentCard = solitare._FindLastUsed(i);
 		if(currentCard == NULL)
 			continue;
 		short color = currentCard->fColor;
@@ -696,7 +720,7 @@ void SpiderView::_CheckBoard()
 			stacked = true;
 
 		if (stacked) {
-			card* first = spider._FindLastUsed(i);
+			card* first = solitare._FindLastUsed(i);
 			fStackedColor[fStacked] = first->fColor;
 			fStacking = i;
 			fStackingCard = 1;
