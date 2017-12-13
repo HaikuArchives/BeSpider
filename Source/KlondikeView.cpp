@@ -845,7 +845,7 @@ void KlondikeView::CheckBoard() {
 }
 
 
-bool KlondikeView::MoveOneToFoundation(short stack = 0, short endStack = 6) {
+bool KlondikeView::MoveOneToFoundation(short stack, short endStack) {
 	if (!fAutoPlayEnabled)
 		return false;
 	
