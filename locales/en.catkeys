@@ -1,4 +1,4 @@
-1	English	application/x-vnd.przemub.BeSpider	2770626355
+1	English	application/x-vnd.przemub.BeSpider	3375380630
 Auto-play	BeKlondike		Auto-play
 Options	BeSpider		Options
 New game	BeSpider		New game
@@ -26,8 +26,9 @@ Easy (1 color)	BeSpider		Easy (1 color)
 YOU WON!	BeSpider		YOU WON!
 points	BeSpider		points
 YOU WON	BeKlondike		YOU WON
+BeSpider (c) 2013-17 Przemysław Buczkowski <przemub@przemub.pl>	BeSpider		BeSpider (c) 2013-17 Przemysław Buczkowski <przemub@przemub.pl>
+Pick Game	BeSpider		Pick Game
 Cheat!	BeKlondike		Cheat!
-BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>	BeSpider		BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>
 Choose difficulty level.	BeSpider		Choose difficulty level.
 Distributed under the terms of the MIT license.	BeSpider		Distributed under the terms of the MIT license.
 points	BeKlondike		points
