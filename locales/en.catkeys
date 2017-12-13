@@ -1,23 +1,34 @@
-1	English	application/x-vnd.przemub.BeSpider	1849784333
+1	English	application/x-vnd.przemub.BeSpider	2770626355
+Auto-play	BeKlondike		Auto-play
+Options	BeSpider		Options
 New game	BeSpider		New game
 Licensed under Creative Commons Attribution 3.0.	BeSpider		Licensed under Creative Commons Attribution 3.0.
+Spider	BeSpider		Spider
+A spider solitaire clone for Haiku.	BeSpider		A spider solitaire clone for Haiku.
 Quit	Menu bar		Quit
+About…	Menu bar		About…
 moves	BeSpider		moves
+Play	BeSpider		Play
+Options	BeKlondike		Options
 Hint	Menu bar		Hint
 Change difficulty	BeSpider		Change difficulty
+SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente.	BeSpider		SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente.
 Medium (2 colors)	BeSpider		Medium (2 colors)
 OK!	Win alert		OK!
+Game	BeSpider		Game
 there are no constructive moves!	BeSpider		there are no constructive moves!
 OK	About alert		OK
-Fanfare sound (c) 2009 Anthony Batiste	BeSpider		Fanfare sound (c) 2009 Anthony Batiste
+Klondike	BeSpider		Klondike
+Fanfare sound (c) 2009 Anthony Batiste.	BeSpider		Fanfare sound (c) 2009 Anthony Batiste.
+Quick auto-play	BeKlondike		Quick auto-play
 Licensed under GNU Lesser General Public License 2.1.	BeSpider		Licensed under GNU Lesser General Public License 2.1.
 Easy (1 color)	BeSpider		Easy (1 color)
-SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente	BeSpider		SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente
 YOU WON!	BeSpider		YOU WON!
 points	BeSpider		points
-a spider solitaire clone for Haiku	BeSpider		a spider solitaire clone for Haiku
-About	Menu bar		About
+YOU WON	BeKlondike		YOU WON
+Cheat!	BeKlondike		Cheat!
 BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>	BeSpider		BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>
 Choose difficulty level.	BeSpider		Choose difficulty level.
 Distributed under the terms of the MIT license.	BeSpider		Distributed under the terms of the MIT license.
+points	BeKlondike		points
 Hard (4 colors)	BeSpider		Hard (4 colors)
