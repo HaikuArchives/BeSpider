@@ -20,7 +20,7 @@ SpiderApplication::SpiderApplication()
 	:
 	BApplication("application/x-vnd.przemub.BeSpider")
 {
-	fWindow = new SelectorWindow(BRect(150, 150, 280, 240), "Pick Game");
+	fWindow = new SelectorWindow(BRect(150, 150, 300, 240), B_TRANSLATE("Pick Game"));
 
 	fWindow->Lock();
 	fWindow->Show();
@@ -33,7 +33,7 @@ void SpiderApplication::AboutRequested()
 	BString aboutText = "";
 	aboutText << "BeSpider v0.1" << "\n"
 	<< B_TRANSLATE("A spider solitaire clone for Haiku.")<<"\n\n"
-	<< B_TRANSLATE("BeSpider (c) 2013 Przemysław Buczkowski <przemub@przemub.pl>")<<"\n"
+	<< B_TRANSLATE("BeSpider (c) 2013-17 Przemysław Buczkowski <przemub@przemub.pl>")<<"\n"
 	<< B_TRANSLATE("Distributed under the terms of the MIT license.")<<"\n\n"
 	<< B_TRANSLATE("SVG-Z-cards (c) 2008 David Bellot, Brandon Ardiente.")<<"\n"
 	<< B_TRANSLATE("Licensed under GNU Lesser General Public License 2.1.")<<"\n\n"
