@@ -23,6 +23,7 @@ const uint32 sNewGameMessage = 'NewG';
 const uint32 sDifficultyMessage = 'Diff';
 const uint32 sDiffChosenMessage = 'DiCh';
 const uint32 sHintMessage = 'Hint';
+const uint32 sToggleSoundMessage = 'TSnd';
 
 class SpiderView : public SolitareView {
 public:
@@ -81,7 +82,11 @@ private:
 
 	short fStacked;
 	short fStackedColor[8];
-
+	
+	bool		fSoundEnabled;
+	
+	BMenuItem*	fToggleSoundItem;
+	
 	int fPoints;
 	int fMoves;
 

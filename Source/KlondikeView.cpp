@@ -238,6 +238,14 @@ void KlondikeView::Draw(BRect rect)
 
 void KlondikeView::ReciveOptionMessage(BMessage* message) {
 	switch (message->what) {
+	case kToggleSoundMessage:
+			fSoundEnabled = !fSoundEnabled;
+			if (fToggleSoundItem->IsMarked()) {
+				fToggleSoundItem->SetMarked(false);
+			} else {
+				fToggleSoundItem->SetMarked(true);
+			}
+			break;	
 	case kCheatMessage:
 		Cheat();
 		break;
@@ -827,8 +835,9 @@ void KlondikeView::_GenerateBoard()
 	for (short i = 0; i != 24; i++) {
 		fStock[i] = solitare._PickRandomCard();
 	}
-
-	fShuffle->StartPlaying();
+	
+	if (fSoundEnabled)
+		fShuffle->StartPlaying();
 }
 
 
@@ -838,7 +847,8 @@ void KlondikeView::CheckBoard() {
 			return;
 	}
 	
-	fFanfare->StartPlaying();
+	if (fSoundEnabled)
+		fFanfare->StartPlaying();
 	
 	fMouseLock = true;
 	fWon = true;
@@ -959,6 +969,12 @@ bool KlondikeView::_MoveWasteToFoundation() {
 BMenu* KlondikeView::GetOptionMenu() {
 	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
 	BMenuItem* menuItem;
+	fToggleSoundItem = new BMenuItem(B_TRANSLATE("Enable sound"),
+		NewSolitareOptionMessage(kToggleSoundMessage));
+	fToggleSoundItem->SetMarked(true);
+	mOptions->AddItem(fToggleSoundItem);
+	fSoundEnabled = true;
+	
 	fAutoPlayEnabledItem = new BMenuItem(B_TRANSLATE("Auto-play"),
 		NewSolitareOptionMessage(kAutoPlayEnableMessage));
 	fAutoPlayEnabledItem->SetMarked(true);

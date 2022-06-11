@@ -28,7 +28,6 @@ public:
 	virtual void Hint();
 	
 private:
-
 };
 
 
