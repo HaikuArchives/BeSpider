@@ -169,6 +169,14 @@ void SpiderView::Draw(BRect rect)
 void SpiderView::ReciveOptionMessage(BMessage* message) {
 	BAlert* question;
 	switch (message->what) {
+		case sToggleSoundMessage:
+			fSoundEnabled = !fSoundEnabled;
+			if (fToggleSoundItem->IsMarked()) {
+				fToggleSoundItem->SetMarked(false);
+			} else {
+				fToggleSoundItem->SetMarked(true);
+			}
+			break;
 		case sDifficultyMessage:
 			question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
 				B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
@@ -182,11 +190,17 @@ void SpiderView::ReciveOptionMessage(BMessage* message) {
 BMenu* SpiderView::GetOptionMenu() {
 	BMenuItem* menuItem;
 	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+	
+	fToggleSoundItem = new BMenuItem(B_TRANSLATE("Enable sound"),
+		NewSolitareOptionMessage(sToggleSoundMessage));
+	fToggleSoundItem->SetMarked(true);
+	mOptions->AddItem(fToggleSoundItem);
+	fSoundEnabled = true;
 
 	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), NewSolitareOptionMessage(sDifficultyMessage));
 	menuItem->SetShortcut('D', B_COMMAND_KEY);
 	mOptions->AddItem(menuItem);
-	
+
 	return mOptions;
 }
 
@@ -317,7 +331,9 @@ void SpiderView::MouseDown(BPoint point)
 
 		fStock--; // one less stock available
 
-		fShuffle->StartPlaying();
+		if (fSoundEnabled)
+			fShuffle->StartPlaying();
+		
 		Invalidate();
 	}
 
@@ -551,23 +567,28 @@ BSimpleGameSound* SpiderView::_LoadSound(const char* resourceName)
 {
 	size_t size;
 	const void* data = fResources->LoadResource('rSFX', resourceName, &size);
-	if(data == NULL) {
-		printf("Error loading sound resource: %s\n", resourceName);
-		return NULL;
+	if (data == NULL) {
+		printf("Sound resource not found: %s\n", resourceName);
+		return new BSimpleGameSound("");
 	}
 	
 	gs_audio_format format;
-	format.frame_rate = 44100;
-	format.channel_count = 2; // stereo
-	format.format = 0x02;
+	format.frame_rate = 22050;
+	format.channel_count = 1;
+		// mono
+	format.format = 0x2;
 	format.byte_order = 0;
-	format.buffer_size = 0; // auto
+	format.buffer_size = 0;
+		// auto
 	
-	BSimpleGameSound* sound = new BSimpleGameSound(data, size, &format);
+	BSimpleGameSound* sound = new BSimpleGameSound(data, size / 2, &format);
 	
-	if(sound->InitCheck() != B_OK) {
-		printf("Error loading sound resource: %s\n", resourceName);
+	status_t status = sound->InitCheck();
+	if (status != B_OK) {
+		printf("Error loading sound resource: %s. Error code: %ld\n",
+			resourceName, status);
 	}
+		
 	return sound;
 }
 
@@ -692,7 +713,8 @@ void SpiderView::_GenerateBoard()
 		}
 	}
 
-	fShuffle->StartPlaying();
+	if (fSoundEnabled)
+		fShuffle->StartPlaying();
 }
 
 
@@ -732,11 +754,13 @@ void SpiderView::_CheckBoard()
 			fPoints += 100;
 
 			Invalidate();
-
-			if (fStacked == 8) {
-				fFanfare->StartPlaying();
-			} else
-				fShuffle->StartPlaying();
+			
+			if (fSoundEnabled) {
+				if (fStacked == 8) {
+					fFanfare->StartPlaying();
+				} else
+					fShuffle->StartPlaying();
+			}
 		}
 	}
 }

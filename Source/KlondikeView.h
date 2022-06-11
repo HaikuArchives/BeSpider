@@ -24,6 +24,7 @@ const int32 kCheatMessage = 'Chtr';
 const int32 kAutoPlayMessage = 'Auto';
 const int32 kAutoPlayEnableMessage = 'EAut';
 const int32 kQuickAutoPlayMessage = 'QAut';
+const int32 kToggleSoundMessage = 'TSnd';
 
 #define KLONDIKE_CARDS_IN_PLAY CARDS_IN_DECK
 
@@ -85,11 +86,13 @@ private:
 
 			bool				fAutoPlayEnabled;
 			bool				fQuickAutoPlay;
+			bool				fSoundEnabled;
 			short				fDoubleClick;
 			short				fAutoPlayCountdown;
 
 			BMenuItem*		fAutoPlayEnabledItem;
 			BMenuItem*		fQuickAutoPlayItem;
+			BMenuItem*		fToggleSoundItem;
 
 			int					fPoints;
 			Solitare solitare;
