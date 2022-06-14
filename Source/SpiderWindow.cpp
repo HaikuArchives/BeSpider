@@ -55,7 +55,7 @@ void SpiderWindow::MessageReceived(BMessage* message)
 		break;
 	case OPTION_MESSAGE_TYPE:
 		message->FindMessage(OPTION_MESSAGE_LABEL, option_message);
-		fView->ReciveOptionMessage(option_message);
+		fView->ReceiveOptionMessage(option_message);
 		break;
 	case 'DATA':
 		if(message->WasDropped()) {

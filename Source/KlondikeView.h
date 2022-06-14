@@ -6,14 +6,11 @@
 #define _KLONDIKEVIEW_H_
 
 
-#include <Bitmap.h>
 #include <Entry.h>
 #include <FileGameSound.h>
 #include <Point.h>
 #include <Rect.h>
 #include <Menu.h>
-#include <Resources.h>
-#include <SimpleGameSound.h>
 #include <View.h>
 
 #include "Solitare.h"
@@ -24,7 +21,6 @@ const int32 kCheatMessage = 'Chtr';
 const int32 kAutoPlayMessage = 'Auto';
 const int32 kAutoPlayEnableMessage = 'EAut';
 const int32 kQuickAutoPlayMessage = 'QAut';
-const int32 kToggleSoundMessage = 'TSnd';
 
 #define KLONDIKE_CARDS_IN_PLAY CARDS_IN_DECK
 
@@ -33,22 +29,17 @@ public:
 								KlondikeView();
 								~KlondikeView();
 
-	virtual	void				AllAttached();
 	virtual	void				Draw(BRect rect);
 	virtual	void				Pulse();
 	virtual	void				MouseDown(BPoint point);
 	virtual	void				MouseUp(BPoint point);
 	virtual BMenu*				GetOptionMenu();
-	virtual void				ReciveOptionMessage(BMessage* message);
-
-	virtual void				NewGame();
+	virtual void				ReceiveOptionMessage(BMessage* message);
 	
 	virtual	void				Resize(float newWidth, float newHeight);
 
 
 private:
-			BSimpleGameSound*	_LoadSound(const char* resourceName);
-			void				_LoadBitmaps();
 			void				_GenerateBoard();
 			bool				_MoveWasteToFoundation();
 			int					_CardHSpacing();
@@ -59,17 +50,6 @@ private:
 									
 			bool				fAutoPlayStarted;
 			
-			BBitmap*			fCards[CARDS_IN_DECK];
-			BBitmap*			fBack[CACHED_BACKS];
-			BBitmap*			fEmpty;
-
-			BResources*			fResources;
-			BSimpleGameSound*	fShuffle;
-			BSimpleGameSound*	fFanfare;
-
-			int					windowWidth;
-			int					windowHeight;
-
 			card*				fStock[24];
 			short				fWasteCard;
 			bool				fIsWasteCardPicked;
@@ -86,13 +66,11 @@ private:
 
 			bool				fAutoPlayEnabled;
 			bool				fQuickAutoPlay;
-			bool				fSoundEnabled;
 			short				fDoubleClick;
 			short				fAutoPlayCountdown;
 
 			BMenuItem*		fAutoPlayEnabledItem;
 			BMenuItem*		fQuickAutoPlayItem;
-			BMenuItem*		fToggleSoundItem;
 
 			int					fPoints;
 			Solitare solitare;
