@@ -5,14 +5,12 @@
 #include "SpiderView.h"
 
 #include <Alert.h>
-#include <Application.h>
 #include <Catalog.h>
 #include <Entry.h>
 #include <Path.h>
 #include <MenuItem.h>
 #include <Roster.h>
 #include <String.h>
-#include <TranslationUtils.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,19 +39,6 @@ SpiderView::SpiderView()
 
 SpiderView::~SpiderView()
 {
-	delete fShuffle;
-	delete fFanfare;
-	delete fEmpty;
-	for(short i = 0; i < CACHED_BACKS; i++)
-		delete fBack[i];
-	for(short i = 0; i < CARDS_IN_DECK; i++)
-		delete fCards[i];
-}
-
-
-void SpiderView::AllAttached()
-{
-	_GenerateBoard();
 }
 
 
@@ -166,17 +151,10 @@ void SpiderView::Draw(BRect rect)
 	//printf("Time: %.6f\n", diff / (double)CLOCKS_PER_SEC);
 }
 
-void SpiderView::ReciveOptionMessage(BMessage* message) {
+void SpiderView::ReceiveOptionMessage(BMessage* message) {
+	SolitareView::ReceiveOptionMessage(message);
 	BAlert* question;
 	switch (message->what) {
-		case sToggleSoundMessage:
-			fSoundEnabled = !fSoundEnabled;
-			if (fToggleSoundItem->IsMarked()) {
-				fToggleSoundItem->SetMarked(false);
-			} else {
-				fToggleSoundItem->SetMarked(true);
-			}
-			break;
 		case sDifficultyMessage:
 			question = new BAlert("DiffAlert", B_TRANSLATE("Choose difficulty level."),
 				B_TRANSLATE("Easy (1 color)"), B_TRANSLATE("Medium (2 colors)"),
@@ -189,14 +167,8 @@ void SpiderView::ReciveOptionMessage(BMessage* message) {
 
 BMenu* SpiderView::GetOptionMenu() {
 	BMenuItem* menuItem;
-	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
+	BMenu* mOptions = SolitareView::GetOptionMenu();
 	
-	fToggleSoundItem = new BMenuItem(B_TRANSLATE("Enable sound"),
-		NewSolitareOptionMessage(sToggleSoundMessage));
-	fToggleSoundItem->SetMarked(true);
-	mOptions->AddItem(fToggleSoundItem);
-	fSoundEnabled = true;
-
 	menuItem = new BMenuItem(B_TRANSLATE("Change difficulty"), NewSolitareOptionMessage(sDifficultyMessage));
 	menuItem->SetShortcut('D', B_COMMAND_KEY);
 	mOptions->AddItem(menuItem);
@@ -293,9 +265,7 @@ void SpiderView::Pulse()
 
 void SpiderView::Resize(float newWidth, float newHeight)
 {
-	ResizeTo(newWidth, newHeight-20);
-	windowWidth = (int)newWidth - 20;
-	windowHeight = (int)newHeight - 30;
+	SolitareView::Resize(newWidth, newHeight);
 }
 
 
@@ -463,13 +433,6 @@ void SpiderView::MouseUp(BPoint point)
 }
 
 
-void SpiderView::NewGame()
-{
-	_GenerateBoard();
-	Invalidate();
-}
-
-
 int SpiderView::_CardHSpacing()
 {
 	return((windowWidth - (CARD_WIDTH*10)) / 11);
@@ -557,91 +520,6 @@ void SpiderView::Hint()
 		fHints[1]->fEffect = E_RED;
 	} else {
 		fNoMoves = 4;
-	}
-
-	Invalidate();
-}
-
-
-BSimpleGameSound* SpiderView::_LoadSound(const char* resourceName)
-{
-	size_t size;
-	const void* data = fResources->LoadResource('rSFX', resourceName, &size);
-	if (data == NULL) {
-		printf("Sound resource not found: %s\n", resourceName);
-		return new BSimpleGameSound("");
-	}
-	
-	gs_audio_format format;
-	format.frame_rate = 22050;
-	format.channel_count = 1;
-		// mono
-	format.format = 0x2;
-	format.byte_order = 0;
-	format.buffer_size = 0;
-		// auto
-	
-	BSimpleGameSound* sound = new BSimpleGameSound(data, size / 2, &format);
-	
-	status_t status = sound->InitCheck();
-	if (status != B_OK) {
-		printf("Error loading sound resource: %s. Error code: %ld\n",
-			resourceName, status);
-	}
-		
-	return sound;
-}
-
-
-void SpiderView::_LoadBitmaps()
-{
-	BString suits[] = {
-		"spade",
-		"heart",
-		"club",
-		"diamond"
-	};
-	// load images
-	BString filename;
-	for (short i = 0; i < CARDS_IN_SUIT; i++) {
-		for(short j = 0; j < 4; j++) {
-			filename = "";
-			filename << "Artwork/" << i + 1 << "_" << suits[j] << ".png";
-			fCards[j*CARDS_IN_SUIT+i] = BTranslationUtils::GetBitmap('rGFX', filename);
-		}
-	}
-	fBack[0] = BTranslationUtils::GetBitmap('rGFX', "Artwork/back.png");
-	fEmpty = BTranslationUtils::GetBitmap('rGFX', "Artwork/empty.png");
-
-	// load audio
-	fResources = be_app->AppResources();
-	fShuffle = _LoadSound("Artwork/shuffle.wav");
-	fFanfare = _LoadSound("Artwork/fanfare.wav");
-	
-	// cache multiple backs in a row
-	for(short i = 1; i < CACHED_BACKS; i++) {
-		fBack[i] = new BBitmap(BRect(0, 0, CARD_WIDTH-1, CARD_HEIGHT + i*15),
-			fBack[0]->ColorSpace(), true);
-		
-		BView* fBackView = new BView(fBack[i]->Bounds(), NULL, 0, 0);
-		BRect destRect = fBack[0]->Bounds();
-		fBack[i]->AddChild(fBackView);
-		fBack[i]->Lock();
-		
-		fBackView->SetDrawingMode(B_OP_COPY);
-		fBackView->DrawBitmap(fBack[0], destRect);
-		destRect.top = i*15;
-		destRect.bottom = destRect.top + CARD_HEIGHT;
-		fBackView->DrawBitmap(fBack[0], destRect);
-		
-		fBackView->SetDrawingMode(B_OP_ALPHA);
-		for(short j = 0; j < i+1; j++) {
-			destRect.top = j*15;
-			destRect.bottom = destRect.top + CARD_HEIGHT;
-			fBackView->DrawBitmap(fBack[0], destRect);
-		}
-		fBackView->Sync();
-		fBack[i]->Unlock();
 	}
 
 	Invalidate();
