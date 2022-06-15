@@ -36,8 +36,6 @@ public:
 	virtual BMenu*				GetOptionMenu();
 	virtual void				ReceiveOptionMessage(BMessage* message);
 	
-	virtual	void				Resize(float newWidth, float newHeight);
-
 
 private:
 			void				_GenerateBoard();
@@ -58,22 +56,14 @@ private:
 			bool				fIsFoundationCardPicked;
 			
 			bool				fWon;
-			short				fPickedCardBoardPos;
-				// pile picked card is from
-			card*				fPickedCard;
-			bool				fIsCardPicked;
-			bool				fMouseLock;
 
 			bool				fAutoPlayEnabled;
 			bool				fQuickAutoPlay;
 			short				fDoubleClick;
 			short				fAutoPlayCountdown;
 
-			BMenuItem*		fAutoPlayEnabledItem;
-			BMenuItem*		fQuickAutoPlayItem;
-
-			int					fPoints;
-			Solitare solitare;
+			BMenuItem*			fAutoPlayEnabledItem;
+			BMenuItem*			fQuickAutoPlayItem;
 };
 
 

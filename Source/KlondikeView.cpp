@@ -26,12 +26,6 @@ KlondikeView::KlondikeView()
 		"KlondikeView", B_FOLLOW_LEFT | B_FOLLOW_TOP,
 		B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
-	SetViewColor(0, 85, 0);
-
-	windowWidth = STARTING_WINDOW_WIDTH;
-	windowHeight = STARTING_WINDOW_HEIGHT;
-
-	_LoadBitmaps();
 }
 
 
@@ -259,12 +253,6 @@ void KlondikeView::Pulse()
 		fAutoPlayCountdown = 1;
 	} else
 		fAutoPlayCountdown = -1;
-}
-
-
-void KlondikeView::Resize(float newWidth, float newHeight)
-{
-	SolitareView::Resize(newWidth, newHeight);
 }
 
 

@@ -25,14 +25,7 @@ SpiderView::SpiderView()
 	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
 		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
 {
-	SetViewColor(0, 85, 0);
-
-	windowWidth = STARTING_WINDOW_WIDTH;
-	windowHeight = STARTING_WINDOW_HEIGHT;
-
-	_LoadBitmaps();
-
-	// Set easy difficulty
+ 	// Set easy difficulty
 	fColors = 1;
 }
 
@@ -260,12 +253,6 @@ void SpiderView::Pulse()
 		if(fNoMoves == -1)
 			Invalidate();
 	}
-}
-
-
-void SpiderView::Resize(float newWidth, float newHeight)
-{
-	SolitareView::Resize(newWidth, newHeight);
 }
 
 
