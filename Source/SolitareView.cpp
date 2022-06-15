@@ -173,7 +173,7 @@ BSimpleGameSound* SolitareView::_LoadSound(const char* resourceName)
 	
 	status_t status = sound->InitCheck();
 	if (status != B_OK) {
-		printf("Error loading sound resource: %s. Error code: %d\n",
+		printf("Error loading sound resource %s: %s.\n", resourceName, strerror(status));
 			resourceName, status);
 	}
 		
