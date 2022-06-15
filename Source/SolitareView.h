@@ -37,27 +37,31 @@ public:
 	virtual void Hint();
 	
 protected:
-	int windowWidth;
-	int windowHeight;
-	
-	BBitmap*			fCards[CARDS_IN_DECK];
-	BBitmap*			fBack[CACHED_BACKS];
-
-	BBitmap*			fEmpty;
-	BSimpleGameSound* 	fShuffle;
-	BSimpleGameSound* 	fFanfare;
-	
-	BResources*			fResources;
-	
-	bool				fSoundEnabled;
-	BMenuItem*			fToggleSoundItem;
-	
 	void				_LoadBitmaps();
 	BSimpleGameSound*	_LoadSound(const char* resourceName);
 	
 	virtual	void		AllAttached();
 	virtual void		_GenerateBoard();
+	int windowWidth;
+	int windowHeight;
 	
+	BBitmap*			fCards[CARDS_IN_DECK];
+	BBitmap*			fBack[CACHED_BACKS];
+	BBitmap*			fEmpty;
+	BSimpleGameSound* 	fShuffle;
+	BSimpleGameSound* 	fFanfare;
+	BResources*			fResources;	
+	bool				fSoundEnabled;
+	BMenuItem*			fToggleSoundItem;
+	bool 				fMouseLock;
+
+	short 				fPickedCardBoardPos; // pile picked card is from
+	card* 				fPickedCard;
+	bool 				fIsCardPicked;
+
+	int					fPoints;
+	Solitare			solitare;
+
 private:
 };
 

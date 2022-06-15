@@ -38,7 +38,6 @@ public:
 	virtual void ReceiveOptionMessage(BMessage* message);
 	virtual BMenu* GetOptionMenu();
 	
-	virtual void Resize(float newWidth, float newHeight);
 	virtual void Hint();
 
 private:
@@ -54,11 +53,6 @@ private:
 
 	int fColors; // difficulty
 
-	short fPickedCardBoardPos; // pile picked card is from
-	card* fPickedCard;
-	bool fIsCardPicked;
-	bool fMouseLock;
-
 	short fIsHintShown;
 	card* fHints[2];
 	short fHintStatus[2];
@@ -67,10 +61,7 @@ private:
 	short fStacked;
 	short fStackedColor[8];
 	
-	int fPoints;
 	int fMoves;
-
-	Solitare solitare;
 };
 
 #endif // _SPIDERVIEW_H_

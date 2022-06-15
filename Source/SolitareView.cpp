@@ -20,7 +20,12 @@ const char* OPTION_MESSAGE_LABEL = "SolitareOptions";
 
 SolitareView::SolitareView(BRect frame, const char *name, uint32 resizingMode, uint32 flags) 
 : BView(frame, name, resizingMode, flags) {
-	
+	SetViewColor(0, 85, 0);
+
+	windowWidth = STARTING_WINDOW_WIDTH;
+	windowHeight = STARTING_WINDOW_HEIGHT;
+
+	_LoadBitmaps();
 }
 
 SolitareView::~SolitareView() {
