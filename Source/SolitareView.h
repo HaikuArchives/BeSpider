@@ -38,7 +38,7 @@ public:
 	virtual void Hint();
 	
 	status_t LoadSettings(BMessage* settings);
-	status_t SaveSettings(BMessage* settings);
+	virtual status_t SaveSettings(BMessage* settings);
 	
 protected:
 	void				_LoadBitmaps();

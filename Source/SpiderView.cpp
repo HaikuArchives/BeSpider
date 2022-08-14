@@ -25,8 +25,8 @@ SpiderView::SpiderView(BMessage* settings)
 	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH+10, STARTING_WINDOW_HEIGHT+10), "SpiderView",
 		B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE, settings)
 {
- 	// Set easy difficulty
-	fColors = 1;
+	//Load settings
+	LoadSettings(settings); 	
 }
 
 
@@ -34,6 +34,25 @@ SpiderView::~SpiderView()
 {
 }
 
+status_t SpiderView::LoadSettings(BMessage* settings)
+{
+	SolitareView::LoadSettings(settings);
+	
+	if (!settings)
+		return B_BAD_VALUE;
+	
+	// In case the value is not stored in settings, use default	
+	if (settings->FindInt32("spider colors", &fColors) != B_OK)
+		fColors = 1;
+	
+	return B_OK;
+}
+
+status_t SpiderView::SaveSettings(BMessage* settings)
+{
+	settings->SetInt32("spider colors", fColors);
+	return SolitareView::SaveSettings(settings);
+}
 
 void SpiderView::Draw(BRect rect)
 {
