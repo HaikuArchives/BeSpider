@@ -26,6 +26,7 @@ KlondikeView::KlondikeView(BMessage *settings)
 		"KlondikeView", B_FOLLOW_LEFT | B_FOLLOW_TOP,
 		B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE, settings)
 {
+	LoadSettings(settings);
 }
 
 
@@ -33,6 +34,28 @@ KlondikeView::~KlondikeView()
 {
 }
 
+status_t KlondikeView::LoadSettings(BMessage *settings)
+{
+	SolitareView::LoadSettings(settings);
+	
+	if (!settings)
+		return B_BAD_VALUE;
+	
+	// In case the value is not stored in settings, use default	
+	if (settings->FindBool("klondike auto play", &fAutoPlayEnabled) != B_OK)
+		fAutoPlayEnabled = true;
+	if (settings->FindBool("klondike quick auto play", &fQuickAutoPlay) != B_OK)
+		fQuickAutoPlay = false;
+	
+	return B_OK;
+}
+
+status_t KlondikeView::SaveSettings(BMessage* settings)
+{
+	settings->SetBool("klondike auto play", fAutoPlayEnabled);
+	settings->SetBool("klondike quick auto play", fQuickAutoPlay);
+	return SolitareView::SaveSettings(settings);
+}
 
 void KlondikeView::Draw(BRect rect)
 {
@@ -843,15 +866,17 @@ BMenu* KlondikeView::GetOptionMenu() {
 	
 	fAutoPlayEnabledItem = new BMenuItem(B_TRANSLATE("Auto-play"),
 	NewSolitareOptionMessage(kAutoPlayEnableMessage));
-	fAutoPlayEnabledItem->SetMarked(true);
+	if (fAutoPlayEnabled)
+		fAutoPlayEnabledItem->SetMarked(true);
 	mOptions->AddItem(fAutoPlayEnabledItem);
-	fAutoPlayEnabled = true;
 	
 	fQuickAutoPlayItem = new BMenuItem(B_TRANSLATE("Quick auto-play"),
 		NewSolitareOptionMessage(kQuickAutoPlayMessage));
+	if (fQuickAutoPlay)
+		fQuickAutoPlayItem->SetMarked(true);
+	
 	mOptions->AddItem(fQuickAutoPlayItem);
 	mOptions->AddSeparatorItem();
-	fQuickAutoPlay = false;
 	
 	menuItem = new BMenuItem(B_TRANSLATE("Cheat!"),
 		NewSolitareOptionMessage(kCheatMessage));

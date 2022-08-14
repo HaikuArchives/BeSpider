@@ -193,5 +193,5 @@ status_t SolitareView::LoadSettings(BMessage* settings)
 
 status_t SolitareView::SaveSettings(BMessage* settings)
 {
-	return settings->AddBool("sound enabled", fSoundEnabled);
+	return settings->SetBool("sound enabled", fSoundEnabled);
 }	

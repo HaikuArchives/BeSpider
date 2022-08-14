@@ -36,6 +36,8 @@ public:
 	virtual BMenu*				GetOptionMenu();
 	virtual void				ReceiveOptionMessage(BMessage* message);
 	
+	status_t					LoadSettings(BMessage* settings);
+	status_t					SaveSettings(BMessage* settings);
 
 private:
 			void				_GenerateBoard();

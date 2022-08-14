@@ -121,8 +121,7 @@ void SpiderApplication::SaveSettings()
 		return;
 
 	// archive the current state
-	BMessage archive;
-	status_t ret = fWindow->SaveSettings(&archive);
+	status_t ret = fWindow->SaveSettings(&settings);
 
 	fWindow->Unlock();
 
@@ -132,7 +131,7 @@ void SpiderApplication::SaveSettings()
 		return;
 	}
 
-	// flatten entire acrhive and write to settings file
+	// flatten entire archive and write to settings file
 	BFile prefsFile;
 	ret = InitSettingsFile(&prefsFile, true);
 	if (ret < B_OK) {
@@ -141,7 +140,7 @@ void SpiderApplication::SaveSettings()
 		return;
 	}
 
-	ret = archive.Flatten(&prefsFile);
+	ret = settings.Flatten(&prefsFile);
 	if (ret < B_OK) {
 		fprintf(stderr, "SpiderApplication::SaveSettings() - error flattening "
 			"to file: %s\n", strerror(ret));
