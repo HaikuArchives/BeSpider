@@ -18,7 +18,8 @@ const char* OPTION_MESSAGE_LABEL = "SolitareOptions";
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BeSolitare"
 
-SolitareView::SolitareView(BRect frame, const char *name, uint32 resizingMode, uint32 flags) 
+SolitareView::SolitareView(BRect frame, const char *name, uint32 resizingMode, uint32 flags,
+	BMessage* settings) 
 : BView(frame, name, resizingMode, flags) {
 	SetViewColor(0, 85, 0);
 
@@ -26,6 +27,7 @@ SolitareView::SolitareView(BRect frame, const char *name, uint32 resizingMode, u
 	windowHeight = STARTING_WINDOW_HEIGHT;
 
 	_LoadBitmaps();
+	LoadSettings(settings);
 }
 
 SolitareView::~SolitareView() {
@@ -54,9 +56,9 @@ BMenu* SolitareView::GetOptionMenu() {
 	BMenu* mOptions = new BMenu(B_TRANSLATE("Options"));
 	fToggleSoundItem = new BMenuItem(B_TRANSLATE("Enable sound"),
 		NewSolitareOptionMessage(sToggleSoundMessage));
-	fToggleSoundItem->SetMarked(true);
+	if (fSoundEnabled)
+		fToggleSoundItem->SetMarked(true);
 	mOptions->AddItem(fToggleSoundItem);
-	fSoundEnabled = true;
 	return mOptions;
 }
 
@@ -174,8 +176,22 @@ BSimpleGameSound* SolitareView::_LoadSound(const char* resourceName)
 	status_t status = sound->InitCheck();
 	if (status != B_OK) {
 		printf("Error loading sound resource %s: %s.\n", resourceName, strerror(status));
-			resourceName, status);
 	}
 		
 	return sound;
 }
+
+status_t SolitareView::LoadSettings(BMessage* settings)
+{
+	if (!settings)
+		return B_BAD_VALUE;
+		
+	settings->FindBool("sound enabled", &fSoundEnabled);
+	
+	return B_OK;
+}
+
+status_t SolitareView::SaveSettings(BMessage* settings)
+{
+	return settings->AddBool("sound enabled", fSoundEnabled);
+}	

@@ -3,20 +3,23 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 #ifndef _SPIDERWINDOW_H_
-#define _SPIDERWINDOW_H__
+#define _SPIDERWINDOW_H_
 
+#include "BeSpiderWindow.h"
 #include "SpiderView.h"
 #include "KlondikeView.h"
 #include "SolitareView.h"
 
-#include <Window.h>
-
-class SpiderWindow : public BWindow {
+class SpiderWindow : public BeSpiderWindow {
 public:
-	SpiderWindow(BRect frame, const char* title, bool is_klondike);
+	SpiderWindow(BRect frame, const char* title, bool is_klondike,
+		BMessage* settings);
 
 	virtual void MessageReceived(BMessage* message);
 	virtual void FrameResized(float newWidth, float newHeight);
+	
+	virtual status_t SaveSettings(BMessage* settings);
+	virtual bool QuitRequested();
 
 private:
 	BMenuBar* _CreateMenuBar();

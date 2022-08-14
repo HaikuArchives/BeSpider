@@ -26,7 +26,7 @@ const uint32 sHintMessage = 'Hint';
 
 class SpiderView : public SolitareView {
 public:
-	SpiderView();
+	SpiderView(BMessage* settings);
 	~SpiderView();
 
 	virtual void Draw(BRect rect);
