@@ -20,11 +20,11 @@
 #define B_TRANSLATION_CONTEXT "BeKlondike"
 
 
-KlondikeView::KlondikeView()
+KlondikeView::KlondikeView(BMessage *settings)
 	:
 	SolitareView(BRect(0, 0, STARTING_WINDOW_WIDTH + 10, STARTING_WINDOW_HEIGHT + 10),
 		"KlondikeView", B_FOLLOW_LEFT | B_FOLLOW_TOP,
-		B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE)
+		B_WILL_DRAW | B_PULSE_NEEDED | B_FULL_UPDATE_ON_RESIZE, settings)
 {
 }
 

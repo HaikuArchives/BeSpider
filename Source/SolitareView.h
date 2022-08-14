@@ -27,7 +27,8 @@ BMessage* NewSolitareOptionMessage(uint32 what);
 
 class SolitareView: public BView {
 public:
-	SolitareView(BRect frame, const char *name, uint32 resizingMode, uint32 flags);
+	SolitareView(BRect frame, const char *name, uint32 resizingMode, uint32 flags,
+		BMessage* settings);
 	
 	virtual ~SolitareView();
 	virtual void NewGame();
@@ -35,6 +36,9 @@ public:
 	virtual void Resize(float newWidth, float newHeight);
 	virtual void ReceiveOptionMessage(BMessage* message);
 	virtual void Hint();
+	
+	status_t LoadSettings(BMessage* settings);
+	status_t SaveSettings(BMessage* settings);
 	
 protected:
 	void				_LoadBitmaps();

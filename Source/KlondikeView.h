@@ -26,7 +26,7 @@ const int32 kQuickAutoPlayMessage = 'QAut';
 
 class KlondikeView : public SolitareView {
 public:
-								KlondikeView();
+								KlondikeView(BMessage* settings);
 								~KlondikeView();
 
 	virtual	void				Draw(BRect rect);

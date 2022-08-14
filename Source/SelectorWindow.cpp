@@ -12,10 +12,9 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BeSpider"
 
-SelectorWindow::SelectorWindow(BRect frame, const char* title) 
+SelectorWindow::SelectorWindow(BRect frame, const char* title, BMessage* settings) 
 	:
-	BWindow(frame, title, B_DOCUMENT_WINDOW,
-	B_QUIT_ON_WINDOW_CLOSE)
+	BeSpiderWindow(frame, title, settings)
 {
 	radio1 = new BRadioButton
 	(B_TRANSLATE("Klondike"), new BMessage(SELECTOR_RADIO1));
@@ -50,4 +49,9 @@ void SelectorWindow::MessageReceived(BMessage* message) {
 			Quit();
 			break;
 	}
+}
+
+status_t SelectorWindow::SaveSettings(BMessage* settings)
+{
+	return B_OK;
 }

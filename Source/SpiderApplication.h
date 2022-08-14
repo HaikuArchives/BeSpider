@@ -5,12 +5,10 @@
 #ifndef _SPIDERAPPLICATION_H_
 #define _SPIDERAPPLICATION_H_
 
-#include <Window.h>
+#include "BeSpiderWindow.h"
+
 #include <Application.h>
-
-
-class SpiderWindow;
-
+#include <File.h>
 
 class SpiderApplication : public BApplication {
 public:
@@ -18,8 +16,15 @@ public:
 
 	virtual void AboutRequested();
 	virtual void MessageReceived(BMessage* message);
+	virtual bool QuitRequested();
+
 private:
-	BWindow* fWindow;
+	status_t	InitSettingsFile(BFile* file, bool write);
+	void		LoadSettings(BMessage& settings);
+	void		SaveSettings();
+	
+	BeSpiderWindow* fWindow;
+	BMessage settings;
 };
 
 

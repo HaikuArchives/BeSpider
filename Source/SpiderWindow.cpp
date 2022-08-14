@@ -18,15 +18,15 @@
 #define B_TRANSLATION_CONTEXT "BeSpider"
 
 
-SpiderWindow::SpiderWindow(BRect frame, const char* title, bool is_klondike)
+SpiderWindow::SpiderWindow(BRect frame, const char* title, bool is_klondike,
+	BMessage* settings)
 	:
-	BWindow(frame, title, B_DOCUMENT_WINDOW,
-	B_QUIT_ON_WINDOW_CLOSE)
+	BeSpiderWindow(frame, title, settings)
 {
 	if (is_klondike) {
-		fView = new KlondikeView();
+		fView = new KlondikeView(settings);
 	} else {
-		fView = new SpiderView();
+		fView = new SpiderView(settings);
 	}
 
 	SetPulseRate(500000);
@@ -102,4 +102,19 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	mGame->AddItem(menuItem);
 
 	return menuBar;
+}
+
+status_t SpiderWindow::SaveSettings(BMessage* settings)
+{
+	return fView->SaveSettings(settings);
+}
+
+bool SpiderWindow::QuitRequested()
+{
+	be_app->PostMessage(B_QUIT_REQUESTED);
+	Hide();
+
+	// NOTE: don't quit, since the app needs us
+	// for saving settings yet...
+	return false;
 }
