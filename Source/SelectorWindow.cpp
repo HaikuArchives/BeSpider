@@ -14,7 +14,7 @@
 
 SelectorWindow::SelectorWindow(BRect frame, const char* title, BMessage* settings) 
 	:
-	BeSpiderWindow(frame, title, settings)
+	BeSpiderWindow(frame, title, B_TITLED_WINDOW, B_NOT_RESIZABLE | B_QUIT_ON_WINDOW_CLOSE, settings)
 {
 	radio1 = new BRadioButton
 	(B_TRANSLATE("Klondike"), new BMessage(SELECTOR_RADIO1));
@@ -27,7 +27,8 @@ SelectorWindow::SelectorWindow(BRect frame, const char* title, BMessage* setting
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 1)
 		.Add(radio1)
 		.Add(radio2)
-		.Add(button);
+		.Add(button)
+		.SetInsets(40, 5, 40, 5);
 	klondike = true;
 }
 

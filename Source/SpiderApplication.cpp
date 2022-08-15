@@ -29,7 +29,9 @@ SpiderApplication::SpiderApplication()
 {
 	LoadSettings(settings);
 	fWindow = new SelectorWindow(BRect(150, 150, 300, 280), B_TRANSLATE("Pick Game"), &settings);
-
+	
+	fWindow->ResizeToPreferred();
+	fWindow->CenterOnScreen();
 	fWindow->Lock();
 	fWindow->Show();
 	fWindow->Unlock();
@@ -58,19 +60,16 @@ bool SpiderApplication::QuitRequested()
 }
 
 void SpiderApplication::MessageReceived(BMessage* message) {
+	BRect frame = BRect(150, 150, 1080, 760);
 	switch (message->what) {
 		case SELECTOR_KLONDIKE:
-			fWindow = new SpiderWindow(BRect(150, 150,
-				150 + STARTING_WINDOW_WIDTH + 20,
-				150 + STARTING_WINDOW_HEIGHT + 30), "BeKlondike", true, &settings);
+			fWindow = new SpiderWindow(frame, "BeKlondike", true, &settings);
 			fWindow->Lock();
 			fWindow->Show();
 			fWindow->Unlock();
 			break;
 		case SELECTOR_SPIDER:
-			fWindow = new SpiderWindow(BRect(150, 150,
-				150 + STARTING_WINDOW_WIDTH + 20,
-				150 + STARTING_WINDOW_HEIGHT + 30), "BeSpider", false, &settings);
+			fWindow = new SpiderWindow(frame, "BeSpider", false, &settings);
 			fWindow->Lock();
 			fWindow->Show();
 			fWindow->Unlock();
