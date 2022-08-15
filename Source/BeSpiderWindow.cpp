@@ -5,8 +5,8 @@
 
 #include "BeSpiderWindow.h"
 
-BeSpiderWindow::BeSpiderWindow(BRect frame, const char* title, BMessage* settings)
-	:BWindow(frame, title, B_DOCUMENT_WINDOW, B_QUIT_ON_WINDOW_CLOSE)
+BeSpiderWindow::BeSpiderWindow(BRect frame, const char* title, window_type type, uint32 flags, BMessage* settings)
+	:BWindow(frame, title, type, flags)
 {
 }
 

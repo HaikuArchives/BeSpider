@@ -11,7 +11,7 @@
 
 class BeSpiderWindow : public BWindow {
 	public:
-		BeSpiderWindow(BRect frame, const char* title, BMessage* settings);
+		BeSpiderWindow(BRect frame, const char* title, window_type type, uint32 flags, BMessage* settings);
 		
 		virtual ~BeSpiderWindow();
 		virtual status_t SaveSettings(BMessage* settings);

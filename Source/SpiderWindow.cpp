@@ -7,6 +7,8 @@
 #include "SpiderView.h"
 #include "SolitareView.h"
 
+#include <cstdio>
+
 #include <Alert.h>
 #include <Application.h>
 #include <Catalog.h>
@@ -21,8 +23,9 @@
 SpiderWindow::SpiderWindow(BRect frame, const char* title, bool is_klondike,
 	BMessage* settings)
 	:
-	BeSpiderWindow(frame, title, settings)
+	BeSpiderWindow(frame, title, B_DOCUMENT_WINDOW, B_QUIT_ON_WINDOW_CLOSE, settings)
 {
+	LoadSettings(settings);
 	if (is_klondike) {
 		fView = new KlondikeView(settings);
 	} else {
@@ -104,8 +107,20 @@ BMenuBar* SpiderWindow::_CreateMenuBar()
 	return menuBar;
 }
 
+status_t SpiderWindow::LoadSettings(BMessage* settings)
+{
+	BRect frame;
+	if(settings->FindRect("window frame", &frame) == B_OK)
+	{
+		MoveTo(frame.left, frame.top);
+		ResizeTo(frame.Width(), frame.Height());
+	}
+	return B_OK;
+}
+
 status_t SpiderWindow::SaveSettings(BMessage* settings)
 {
+	settings->SetRect("window frame", Frame());
 	return fView->SaveSettings(settings);
 }
 

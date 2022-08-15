@@ -18,13 +18,14 @@ public:
 	virtual void MessageReceived(BMessage* message);
 	virtual void FrameResized(float newWidth, float newHeight);
 	
+	virtual status_t LoadSettings(BMessage* settings);
 	virtual status_t SaveSettings(BMessage* settings);
 	virtual bool QuitRequested();
 
 private:
 	BMenuBar* _CreateMenuBar();
 
-	SolitareView* fView;
+	SolitareView* 	fView;
 };
 
 #endif	// _SPIDERWINDOW_H_
