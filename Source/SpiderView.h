@@ -54,7 +54,7 @@ private:
 	short fStacking; // the pile that is stacking, -1 if none
 	short fStackingCard; // the card in the pile that will stack next, -1 if none
 
-	int fColors; // difficulty
+	int32 fColors; // difficulty
 
 	short fIsHintShown;
 	card* fHints[2];
